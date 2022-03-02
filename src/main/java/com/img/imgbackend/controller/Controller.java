@@ -10,6 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.types.Binary;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Iterator;
 
 @RestController
@@ -50,9 +52,13 @@ public class Controller {
             assert file != null;
             imgBin = new ImgBin(String.valueOf(imgID), new Binary(file.getBytes()));
             log.debug(imgBin.id());
+            System.out.println(imgBin.id());
 
             imageRepository.save(imgBin);
         }
+
+        final String filter = request.getParameter("filter");
+        System.out.println(filter);
 
         assert imgBin != null;
         ImageUploadResponse res = new ImageUploadResponse(imageRepository.findById(imgBin.id()).get().id());
