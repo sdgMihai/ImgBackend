@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "NUM_THREADS",
+      "type": "java.lang.Integer",
+      "description": "Description for NUM_THREADS."
+  }
+] }

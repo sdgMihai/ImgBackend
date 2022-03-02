@@ -1,0 +1,161 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > ImageFormatIO</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.img.imgbackend.repository</a>
+</div>
+
+<h1>Coverage Summary for Class: ImageFormatIO (com.img.imgbackend.repository)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ImageFormatIO</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    25%
+  </span>
+  <span class="absValue">
+    (1/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    3.8%
+  </span>
+  <span class="absValue">
+    (1/26)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package com.img.imgbackend.repository;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import com.img.imgbackend.utils.Image;
+<i class="no-highlight">4</i>&nbsp;import com.img.imgbackend.utils.Pixel;
+<i class="no-highlight">5</i>&nbsp;import org.apache.commons.io.output.ByteArrayOutputStream;
+<i class="no-highlight">6</i>&nbsp;import org.springframework.stereotype.Service;
+<i class="no-highlight">7</i>&nbsp;
+<i class="no-highlight">8</i>&nbsp;import javax.imageio.ImageIO;
+<i class="no-highlight">9</i>&nbsp;import java.awt.image.BufferedImage;
+<i class="no-highlight">10</i>&nbsp;import java.io.IOException;
+<i class="no-highlight">11</i>&nbsp;
+<i class="no-highlight">12</i>&nbsp;import static java.awt.image.BufferedImage.TYPE_4BYTE_ABGR;
+<i class="no-highlight">13</i>&nbsp;import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
+<i class="no-highlight">14</i>&nbsp;
+<i class="no-highlight">15</i>&nbsp;@Service
+<b class="fc"><i class="no-highlight">16</i>&nbsp;public class ImageFormatIO {</b>
+<i class="no-highlight">17</i>&nbsp;    public Image bufferedToModelImage(BufferedImage buff) {
+<b class="nc"><i class="no-highlight">18</i>&nbsp;        Image res = new Image(buff.getWidth(), buff.getHeight());</b>
+<i class="no-highlight">19</i>&nbsp;
+<b class="nc"><i class="no-highlight">20</i>&nbsp;            for (int i = 0; i &lt; buff.getHeight(); ++i) {</b>
+<b class="nc"><i class="no-highlight">21</i>&nbsp;                for (int j = 0; j &lt; buff.getWidth(); j++) {</b>
+<b class="nc"><i class="no-highlight">22</i>&nbsp;                    int rgb = buff.getRGB(j, i);</b>
+<b class="nc"><i class="no-highlight">23</i>&nbsp;                    int red = (rgb &gt;&gt; 16) &amp; 0x000000FF;</b>
+<b class="nc"><i class="no-highlight">24</i>&nbsp;                    int green = (rgb &gt;&gt; 8) &amp; 0x000000FF;</b>
+<b class="nc"><i class="no-highlight">25</i>&nbsp;                    int blue = (rgb) &amp; 0x000000FF;</b>
+<b class="nc"><i class="no-highlight">26</i>&nbsp;                    int alpha = (rgb &gt;&gt; 24) &amp; 0x000000FF;</b>
+<b class="nc"><i class="no-highlight">27</i>&nbsp;                    res.matrix[i + 1][j + 1] = new Pixel((char) red, (char) green, (char) blue, (char) alpha);</b>
+<i class="no-highlight">28</i>&nbsp;                }
+<i class="no-highlight">29</i>&nbsp;            }
+<i class="no-highlight">30</i>&nbsp;
+<b class="nc"><i class="no-highlight">31</i>&nbsp;        return res;</b>
+<i class="no-highlight">32</i>&nbsp;    }
+<i class="no-highlight">33</i>&nbsp;
+<i class="no-highlight">34</i>&nbsp;    public BufferedImage modelToBufferedImage(Image image) {
+<b class="nc"><i class="no-highlight">35</i>&nbsp;        BufferedImage res = new BufferedImage(image.width - 2, image.height - 2, TYPE_4BYTE_ABGR);</b>
+<b class="nc"><i class="no-highlight">36</i>&nbsp;        for (int i  = 1; i &lt; image.height - 1; ++i) {</b>
+<b class="nc"><i class="no-highlight">37</i>&nbsp;            for (int j = 1; j &lt; image.width - 1; j++) {</b>
+<b class="nc"><i class="no-highlight">38</i>&nbsp;                Pixel pixelC = image.matrix[i][j];</b>
+<b class="nc"><i class="no-highlight">39</i>&nbsp;                int pixelI = 0;</b>
+<b class="nc"><i class="no-highlight">40</i>&nbsp;                int red = pixelC.r;</b>
+<b class="nc"><i class="no-highlight">41</i>&nbsp;                int green = pixelC.g;</b>
+<b class="nc"><i class="no-highlight">42</i>&nbsp;                int blue = pixelC.b;</b>
+<b class="nc"><i class="no-highlight">43</i>&nbsp;                int alpha = pixelC.a;</b>
+<b class="nc"><i class="no-highlight">44</i>&nbsp;                pixelI = (alpha &lt;&lt; 24) | (red &lt;&lt; 16) | (green &lt;&lt; 8) | blue ;</b>
+<b class="nc"><i class="no-highlight">45</i>&nbsp;                res.setRGB(j - 1, i - 1, pixelI);</b>
+<i class="no-highlight">46</i>&nbsp;            }
+<i class="no-highlight">47</i>&nbsp;        }
+<b class="nc"><i class="no-highlight">48</i>&nbsp;        return res;</b>
+<i class="no-highlight">49</i>&nbsp;    }
+<i class="no-highlight">50</i>&nbsp;
+<i class="no-highlight">51</i>&nbsp;    public byte[] bufferedToByteArray(BufferedImage buff) throws IOException {
+<b class="nc"><i class="no-highlight">52</i>&nbsp;        ByteArrayOutputStream baos = new ByteArrayOutputStream();</b>
+<b class="nc"><i class="no-highlight">53</i>&nbsp;        ImageIO.write(buff, &quot;png&quot;, baos);</b>
+<b class="nc"><i class="no-highlight">54</i>&nbsp;        return baos.toByteArray();</b>
+<i class="no-highlight">55</i>&nbsp;    }
+<i class="no-highlight">56</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-02-02 20:58</div>
+</div>
+</body>
+</html>
