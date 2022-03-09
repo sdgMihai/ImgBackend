@@ -1,60 +1,55 @@
 package com.img.imgbackend.filter;
 
-import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
+
+@Slf4j
 public class FilterFactory {
     public static Filter filterCreate(String filterName) {
         float param = 0.0f;
-        List<List<Float>> theta = null;
         int thetaHeight = 0;
         int thetaWidth = 0;
-        FilterAdditionalData varargs = null;
-        return filterCreate(filterName, param, theta, thetaHeight, thetaWidth, varargs);
+        return filterCreate(filterName, param, null, thetaHeight, thetaWidth, null);
     }
 
     /**
      * creeaza un obiect-filtru
      *
      * @param filterName numele filtrului
-     * @param param
+     * @param param level of brightness or contrast, depending on the @param filterName
      * @return referinta catre obiectul-filtru creat
      */
     public static Filter filterCreate(String filterName, float param,
-                                      List<List<Float>> theta, int thetaHeight,
+                                      float[][] theta, int thetaHeight,
                                       int thetaWidth, FilterAdditionalData varargs) {
-        Filters.FILTER it = Filters.filters.get(filterName);
-
-        if (it == null) {
-            return new DummyFilter();
+        Filters it;
+        try {
+            log.debug(String.format("filter factory creating filter with name [%s]"
+                    , filterName.toLowerCase(Locale.ROOT).replace("-", "_")));
+            it = Filters.valueOf(filterName.toUpperCase(Locale.ROOT).replace("-", "_"));
+        } catch (IllegalArgumentException e) {
+            log.debug("Bad filter name exception");
+            return new DummyFilter(varargs);
         }
 
-        switch (it) {
-            case SHARPEN:
-                return new SharpenFilter(varargs);
-            case EMBOSS:
-                return new EmbossFilter(varargs);
-            case BLACK_WHITE:
-                return new BlackWhiteFilter(varargs);
-            case BRIGHTNESS:
-                return new BrightnessFilter(param, varargs);
-            case CANNY_EDGE_DETECTION:
-                return new CannyEdgeDetectionFilter(varargs);
-            case CONTRAST:
-                return new ContrastFilter(param, varargs);
-            case DOUBLE_TRESHOLD:
-                return new DoubleThresholdFilter(varargs);
-            case EDGE_TRACKING:
-                return new EdgeTrackingFilter(varargs);
-            case GAUSSIAN_BLUR:
-                return new GaussianBlurFilter(varargs);
-            case NON_MAXIMUM_SUPPRESSION:
-                return new NonMaximumSuppressionFilter(theta, thetaHeight, thetaWidth, varargs);
-            case GRADIENT:
-                return new GradientFilter(varargs);
-            case SEPIA:
-                return new SepiaFilter(varargs);
-        }
+        return switch (it) {
+            case SHARPEN -> new SharpenFilter(varargs);
+            case EMBOSS -> new EmbossFilter(varargs);
+            case BLACK_WHITE -> new BlackWhiteFilter(varargs);
+            case BRIGHTNESS -> new BrightnessFilter(param, varargs);
+            case CANNY_EDGE_DETECTION -> new CannyEdgeDetectionFilter(varargs);
+            case CONTRAST -> new ContrastFilter(param, varargs);
+            case DOUBLE_THRESHOLD -> new DoubleThresholdFilter(varargs);
+            case EDGE_TRACKING -> new EdgeTrackingFilter(varargs);
+            case GAUSSIAN_BLUR -> new GaussianBlurFilter(varargs);
+            case NON_MAXIMUM_SUPPRESSION -> new NonMaximumSuppressionFilter(theta, thetaHeight, thetaWidth, varargs);
+            case GRADIENT -> new GradientFilter(varargs);
+            case SEPIA -> new SepiaFilter(varargs);
+        };
 
-        return new DummyFilter(varargs);
     }
 }

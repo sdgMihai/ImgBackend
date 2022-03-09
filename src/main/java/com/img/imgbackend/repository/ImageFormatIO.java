@@ -2,6 +2,7 @@ package com.img.imgbackend.repository;
 
 import com.img.imgbackend.utils.Image;
 import com.img.imgbackend.utils.Pixel;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +12,7 @@ import java.io.IOException;
 
 import static java.awt.image.BufferedImage.TYPE_4BYTE_ABGR;
 
+@Slf4j
 @Service
 public class ImageFormatIO {
     public Image bufferedToModelImage(BufferedImage buff) {
@@ -31,9 +33,11 @@ public class ImageFormatIO {
     }
 
     public BufferedImage modelToBufferedImage(Image image) {
+        log.debug("model to Buffered Image");
         BufferedImage res = new BufferedImage(image.width - 2, image.height - 2, TYPE_4BYTE_ABGR);
         for (int i  = 1; i < image.height - 1; ++i) {
             for (int j = 1; j < image.width - 1; j++) {
+//                log.debug(String.format("image[%d][%d]", i, j));
                 Pixel pixelC = image.matrix[i][j];
                 int pixelI = 0;
                 int red = pixelC.r;

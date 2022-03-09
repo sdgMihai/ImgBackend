@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -183,7 +184,11 @@ public class TestFilter {
         FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, lock, NUM_THREADS);
         CannyEdgeDetectionFilter cannyEdgeDetectionFilter = new CannyEdgeDetectionFilter(addData);
 
-        cannyEdgeDetectionFilter.applyFilter(input, output);
+        try {
+            cannyEdgeDetectionFilter.applyFilter(input, output);
+        } catch (BrokenBarrierException | InterruptedException e) {
+            e.printStackTrace();
+        }
 
         assertEquals(input.width, output.width);
         assertEquals(input.height, output.height);
@@ -199,7 +204,8 @@ public class TestFilter {
         final Image output = new Image(input.width - 2, input.height - 2);
 
         // create additional data and filter
-        ContrastFilter con = new ContrastFilter(0.1f);
+        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, lock, NUM_THREADS);
+        ContrastFilter con = new ContrastFilter(0.1f, addData);
 
         con.applyFilter(input, output);
 
@@ -220,7 +226,11 @@ public class TestFilter {
         FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, lock, NUM_THREADS);
         DoubleThresholdFilter filter = new DoubleThresholdFilter(addData);
 
-        filter.applyFilter(input, output);
+        try {
+            filter.applyFilter(input, output);
+        } catch (BrokenBarrierException | InterruptedException e) {
+            e.printStackTrace();
+        }
 
         assertEquals(input.width, output.width);
         assertEquals(input.height, output.height);
@@ -296,7 +306,11 @@ public class TestFilter {
         FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, lock, NUM_THREADS);
         GradientFilter filter = new GradientFilter(addData);
 
-        filter.applyFilter(input, output);
+        try {
+            filter.applyFilter(input, output);
+        } catch (BrokenBarrierException | InterruptedException e) {
+            e.printStackTrace();
+        }
 
         assertEquals(input.width, output.width);
         assertEquals(input.height, output.height);
@@ -311,10 +325,17 @@ public class TestFilter {
         final Image input = imageFormatIO.bufferedToModelImage(bufferedImage);
         final Image output = new Image(input.width - 2, input.height - 2);
 
-        // create additional data and filter
+        // create additional data and filter + gradient filter, bc non-maximum needs the theta obtained from it
         FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, lock, NUM_THREADS);
-        NonMaximumSuppressionFilter filter = new NonMaximumSuppressionFilter(null, 1, 1, addData);
-        filter.applyFilter(input, output);
+        GradientFilter gradient = new GradientFilter(addData);
+        try {
+            gradient.applyFilter(input, output);
+        } catch (BrokenBarrierException | InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        NonMaximumSuppressionFilter filter = new NonMaximumSuppressionFilter(gradient.theta, 1, 1, addData);
+        filter.applyFilter(output, input);
 
         assertEquals(input.width, output.width);
         assertEquals(input.height, output.height);

@@ -1,44 +1,35 @@
 package com.img.imgbackend.filter;
 
-import java.util.HashMap;
-import java.util.Map;
-
-public class Filters {
+public enum Filters {
     /**
      * filtrele disponibile - id-urile filtrelor
      */
-    public enum FILTER {
-        SHARPEN,
-        EMBOSS,
-        SEPIA,
-        CONTRAST,
-        BRIGHTNESS,
-        BLACK_WHITE,
-        GAUSSIAN_BLUR,
-        NON_MAXIMUM_SUPPRESSION,
-        DOUBLE_TRESHOLD,
-        EDGE_TRACKING,
-        GRADIENT,
-        CANNY_EDGE_DETECTION
-    }
+
+        SHARPEN("sharpen"),
+        EMBOSS("emboss"),
+        SEPIA("sepia"),
+        CONTRAST("contrast"),
+        BRIGHTNESS("brightness"),
+        BLACK_WHITE("black-white"),
+        GAUSSIAN_BLUR("gaussian-blur"),
+        NON_MAXIMUM_SUPPRESSION("non-maximum-suppression"),
+        DOUBLE_THRESHOLD("double-threshold"),
+        EDGE_TRACKING("edge-tracking"),
+        GRADIENT("gradient"),
+        CANNY_EDGE_DETECTION("canny-edge-detection");
 
     /**
-     * asociere intre numele filtrului si id-ul acestuia
+     * association btw filter name and its id
+     * bc. dash can't be found in enum fields, the default toString() method can't be used, but rather a String field
      */
-    final static Map<String, FILTER> filters = new HashMap<>();
+    private final String value;
 
-    static {
-        filters.put("sharpen", FILTER.SHARPEN);
-        filters.put("emboss", FILTER.EMBOSS);
-        filters.put("sepia", FILTER.SEPIA);
-        filters.put("contrast", FILTER.CONTRAST);
-        filters.put("brightness", FILTER.BRIGHTNESS);
-        filters.put("black-white", FILTER.BLACK_WHITE);
-        filters.put("gaussian-blur", FILTER.GAUSSIAN_BLUR);
-        filters.put("non-maximum-suppression", FILTER.NON_MAXIMUM_SUPPRESSION);
-        filters.put("double-threshold", FILTER.DOUBLE_TRESHOLD);
-        filters.put("edge-tracking", FILTER.EDGE_TRACKING);
-        filters.put("gradient", FILTER.GRADIENT);
-        filters.put("canny-edge-detection", FILTER.CANNY_EDGE_DETECTION);
+    Filters(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return value;
     }
 }

@@ -3,6 +3,8 @@ package com.img.imgbackend.filter;
 
 import com.img.imgbackend.utils.Image;
 
+import java.util.concurrent.BrokenBarrierException;
+
 public abstract class Filter {
     public FilterAdditionalData filter_additional_data;
     /**
@@ -12,5 +14,5 @@ public abstract class Filter {
      *          care va contine imaginea rezultata in urma
      *          aplicarii filtrului.
      */
-    public abstract void applyFilter(Image image, Image newImage);
+    public abstract void applyFilter(Image image, Image newImage) throws BrokenBarrierException, InterruptedException;
 }
