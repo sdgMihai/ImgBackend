@@ -35,7 +35,7 @@ to show the value of the FilterFactory.
 ## Synchronization
 - I used a mutex for gradient and double threshold filters.
 - The service ImgSrv, canny-edge-detection, double threshold filter and gradient filter use the barrier.
-- TODO: maybe the barrier and the lock can be made local static final fields, so that it won't be necessary to be sent and allow for better loose-coupled code.
+
 ## Internal representation
 - In the utils package the classes used for the internal representation of the image are located along
 those used to encapsulate thread specific data, called ThreadSpecificData and ThreadSpecificDataT.
