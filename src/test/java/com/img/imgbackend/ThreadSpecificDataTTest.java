@@ -1,9 +1,9 @@
 package com.img.imgbackend;
 
+import com.img.imgbackend.utils.Barrier;
 import com.img.imgbackend.utils.ThreadSpecificDataT;
 import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -13,7 +13,7 @@ public class ThreadSpecificDataTTest {
     @Test
     public void encapsulationTest() {
         int threadID = 0;
-        CyclicBarrier cyclicBarrier = new CyclicBarrier(1);
+        Barrier cyclicBarrier = new Barrier(1);
         Lock lock  = new ReentrantLock();
         int NUM_THREADS = 1;
 

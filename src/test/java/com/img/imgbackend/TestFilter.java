@@ -4,6 +4,7 @@ import com.img.imgbackend.filter.*;
 import com.img.imgbackend.model.ImgBin;
 import com.img.imgbackend.repository.ImageFormatIO;
 import com.img.imgbackend.repository.ImageRepository;
+import com.img.imgbackend.utils.Barrier;
 import com.img.imgbackend.utils.Image;
 import com.img.imgbackend.utils.ThreadSpecificDataT;
 import org.apache.logging.log4j.LogManager;
@@ -31,7 +32,6 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
@@ -61,7 +61,7 @@ public class TestFilter {
     @Autowired
     private ImageFormatIO imageFormatIO;
 
-    private CyclicBarrier cyclicBarrier;
+    private Barrier cyclicBarrier;
 
     private Lock lock;
 
@@ -81,7 +81,7 @@ public class TestFilter {
                 .thenReturn(Optional.of(imgBinOne));
 
         NUM_THREADS = 1;
-        cyclicBarrier = new CyclicBarrier(NUM_THREADS);
+        cyclicBarrier = new Barrier(NUM_THREADS);
         lock = new ReentrantLock();
     }
 

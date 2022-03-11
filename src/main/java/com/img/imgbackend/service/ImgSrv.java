@@ -3,10 +3,7 @@ package com.img.imgbackend.service;
 import com.img.imgbackend.filter.Filter;
 import com.img.imgbackend.filter.FilterFactory;
 import com.img.imgbackend.filter.Filters;
-import com.img.imgbackend.utils.Image;
-import com.img.imgbackend.utils.Pixel;
-import com.img.imgbackend.utils.ThreadSpecificData;
-import com.img.imgbackend.utils.ThreadSpecificDataT;
+import com.img.imgbackend.utils.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -61,18 +58,19 @@ public class ImgSrv {
                                     , data.getNUM_THREADS()));
                 } else if (filterName.toLowerCase(Locale.ROOT)
                         .equals(Filters.CONTRAST.toString().toLowerCase(Locale.ROOT))) {
-                        param = Double.parseDouble(data.getFilters().get(++i));
-                        System.out.println(param);
 
-                    filter = FilterFactory.filterCreate(filterName
-                            , (float) param
-                            , null
-                            , 0
-                            ,0
-                            , new ThreadSpecificDataT(data.getThread_id()
-                                    , data.getBarrier()
-                                    , data.getLock()
-                                    , data.getNUM_THREADS()));
+                        param = Double.parseDouble(data.getFilters().get(++i));
+                        log.debug(String.format("using level %f", param));
+
+                        filter = FilterFactory.filterCreate(filterName
+                                , (float) param
+                                , null
+                                , 0
+                                ,0
+                                , new ThreadSpecificDataT(data.getThread_id()
+                                        , data.getBarrier()
+                                        , data.getLock()
+                                        , data.getNUM_THREADS()));
                 } else {
                     filter = FilterFactory.filterCreate(filterName
                             , 0.0f
@@ -90,11 +88,9 @@ public class ImgSrv {
                 } catch (BrokenBarrierException | InterruptedException e) {
                     e.printStackTrace();
                 }
-                try {
-                    data.getBarrier().await();
-                } catch (InterruptedException | BrokenBarrierException e) {
-                    e.printStackTrace();
-                }
+
+                data.getBarrier().await();
+
                 log.debug("passed in thread " + data.getThread_id() + "the barrier\n");
 
                 // this piece of code isn't actually tested yet
@@ -128,8 +124,8 @@ public class ImgSrv {
         assert (NUM_THREADS == 4);
         List<Thread> threads = new ArrayList<>(NUM_THREADS);
         List<ThreadSpecificData> specificDataList = new ArrayList<>(NUM_THREADS);
-        CyclicBarrier barrier = new CyclicBarrier(NUM_THREADS);
-        Lock lock = new ReentrantLock();
+        Barrier barrier = new Barrier(NUM_THREADS);
+        Object lock = new Object();
 
         Image newImage = new Image(image.width - 2, image.height - 2);
 
