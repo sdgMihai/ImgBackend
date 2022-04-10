@@ -1,52 +1,6 @@
 package com.img.imgbackend.utils;
 
 public class Barrier {
-//    private final Object synchObj = new Object();
-//    private int count;
-//    private final int NUM_THREADS;
-//    private boolean canBeInit = true;
-//
-//    public Barrier(int noThreads) {
-//        synchronized (synchObj) {
-//            NUM_THREADS = noThreads;
-//        }
-//    }
-//
-//    public void await() {
-//        init();
-//        countDown();
-//        try {
-//            awaitZero();
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    public synchronized void init() {
-//        synchronized(synchObj) {
-//            if (canBeInit) {
-//                count = NUM_THREADS;
-//                canBeInit = false;
-//            }
-//        }
-//    }
-//
-//    public void countDown() {
-//        synchronized (synchObj) {
-//            if (--count <= 0) {
-//                synchObj.notifyAll();
-//                canBeInit = true;
-//            }
-//        }
-//    }
-//
-//    public void awaitZero() throws InterruptedException {
-//        synchronized (synchObj) {
-//            while (count > 0) {
-//                synchObj.wait();
-//            }
-//        }
-//    }
     int initialParties;
     int partiesAwait;
 
