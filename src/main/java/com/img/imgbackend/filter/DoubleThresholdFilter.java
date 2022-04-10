@@ -10,7 +10,7 @@ public class DoubleThresholdFilter extends Filter {
 
     private final float thresholdHigh = 0.06f;
     private final float thresholdLow = 0.05f;
-    private float maxVal = -3.40282347e+38F;
+    private static volatile float maxVal = -3.40282347e+38F;
 
     public DoubleThresholdFilter() {
         this.filter_additional_data = null;

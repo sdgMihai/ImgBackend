@@ -18,7 +18,7 @@ public class GradientFilter extends Filter {
             {0, 0, 0},
             {-1, -2, -1}};
 
-    private static float gMax = -3.40282347e+38F;
+    private static volatile float gMax = -3.40282347e+38F;
     private static float[][] Ix, Iy, auxTheta;
 
 
