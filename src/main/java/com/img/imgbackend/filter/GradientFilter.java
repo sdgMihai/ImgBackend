@@ -1,5 +1,6 @@
 package com.img.imgbackend.filter;
 
+import com.img.imgbackend.utils.AtomicFloat;
 import com.img.imgbackend.utils.Image;
 import com.img.imgbackend.utils.Pixel;
 import com.img.imgbackend.utils.ThreadSpecificDataT;
@@ -18,7 +19,7 @@ public class GradientFilter extends Filter {
             {0, 0, 0},
             {-1, -2, -1}};
 
-    private static volatile float gMax = -3.40282347e+38F;
+    private static AtomicFloat gMax = new AtomicFloat(-3.40282347e+38F);
     private static float[][] Ix, Iy, auxTheta;
 
 
@@ -118,16 +119,14 @@ public class GradientFilter extends Filter {
             }
         }
 
-        synchronized (tData.mutex) {
-            gMax = Math.max(gMax, threadgMax);
-        }
+        gMax.applyMax(threadgMax);
         tData.barrier.await();
 
         // 4. Se calculeaza G = G / G.max() * 255
         for (int i = start; i < stop; ++i) {
             for (int j = 1; j < image.width - 1; ++j) {
                 float gray = Ix[i][j];
-                gray = (gray / gMax) * 255;
+                gray = (gray / gMax.get()) * 255;
                 gray = (gray < 0) ? 0 : gray;
                 gray = (gray > 255) ? 255 : gray;
                 newImage.matrix[i][j] = new Pixel((char) gray, (char) gray, (char) gray, image.matrix[i][j].a);

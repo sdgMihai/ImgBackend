@@ -10,6 +10,5 @@ import java.util.concurrent.locks.Lock;
 public class ThreadSpecificDataT implements FilterAdditionalData {
     public int threadID;
     public CyclicBarrier barrier;
-    public final Lock mutex;
     public int NUM_THREADS;
 }

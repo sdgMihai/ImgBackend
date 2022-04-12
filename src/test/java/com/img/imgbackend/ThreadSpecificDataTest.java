@@ -25,7 +25,6 @@ public class ThreadSpecificDataTest {
         List<String> filterList = new ArrayList<>();
         ThreadSpecificData capsule = new ThreadSpecificData(threadID
                 , cyclicBarrier
-                , lock
                 , input
                 , output
                 , nrFilters
@@ -34,7 +33,6 @@ public class ThreadSpecificDataTest {
         );
         assertEquals (threadID, capsule.getThread_id());
         assertEquals(cyclicBarrier, capsule.getBarrier());
-        assertEquals(lock, capsule.getLock());
         assertEquals(input, capsule.getImage());
         assertEquals(output, capsule.getNewImage());
         assertEquals(nrFilters, capsule.getNrFilters());

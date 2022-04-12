@@ -1,5 +1,8 @@
 package com.img.imgbackend.utils;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 public class Image {
     public int width;
     public int height;
@@ -29,4 +32,20 @@ public class Image {
         }
 
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Image image = (Image) o;
+        return width == image.width && height == image.height && Arrays.deepEquals(matrix, image.matrix);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(width, height);
+        result = 31 * result + Arrays.hashCode(matrix);
+        return result;
+    }
+
 }

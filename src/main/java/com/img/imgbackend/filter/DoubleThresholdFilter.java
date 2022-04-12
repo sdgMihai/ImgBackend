@@ -1,5 +1,6 @@
 package com.img.imgbackend.filter;
 
+import com.img.imgbackend.utils.AtomicFloat;
 import com.img.imgbackend.utils.Image;
 import com.img.imgbackend.utils.Pixel;
 import com.img.imgbackend.utils.ThreadSpecificDataT;
@@ -10,7 +11,7 @@ public class DoubleThresholdFilter extends Filter {
 
     private final float thresholdHigh = 0.06f;
     private final float thresholdLow = 0.05f;
-    private static volatile float maxVal = -3.40282347e+38F;
+    private static AtomicFloat maxVal = new AtomicFloat(-3.40282347e+38F);
 
     public DoubleThresholdFilter() {
         this.filter_additional_data = null;
@@ -45,12 +46,10 @@ public class DoubleThresholdFilter extends Filter {
         }
 
         // Compare and set to get the maximum value
-        synchronized (tData.mutex) {
-            maxVal = Math.max(maxVal, threadMaxVal);
-        }
+        maxVal.applyMax(threadMaxVal);
         tData.barrier.await();
 
-        float high = maxVal * this.thresholdHigh;
+        float high = maxVal.get() * this.thresholdHigh;
         float low = high * this.thresholdLow;
 
         for (int i = start; i < stop; ++i) {

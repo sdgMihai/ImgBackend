@@ -19,12 +19,10 @@ public class ThreadSpecificDataTTest {
 
         ThreadSpecificDataT capsule = new ThreadSpecificDataT(threadID
                 , cyclicBarrier
-                , lock
                 , NUM_THREADS
         );
         assertEquals (threadID, capsule.threadID);
         assertEquals(cyclicBarrier, capsule.barrier);
-        assertEquals(lock, capsule.mutex);
         assertEquals(NUM_THREADS, capsule.NUM_THREADS);
     }
 

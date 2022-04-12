@@ -12,7 +12,6 @@ import java.util.concurrent.locks.Lock;
 public class ThreadSpecificData {
     int thread_id;
     CyclicBarrier barrier;
-    Lock lock;
     Image image;
     Image newImage;
     int nrFilters;

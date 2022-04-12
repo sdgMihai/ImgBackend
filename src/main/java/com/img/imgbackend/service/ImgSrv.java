@@ -13,10 +13,11 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import static com.mongodb.assertions.Assertions.assertTrue;
 
 @Service
 public class ImgSrv {
@@ -24,11 +25,11 @@ public class ImgSrv {
     @Value("${NUM_THREADS}")
     Integer NUM_THREADS;
 
-    class SubImageFilter extends Thread {
+    public class SubImageFilter implements Runnable {
         ThreadSpecificData data;
         private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SubImageFilter.class);
 
-        SubImageFilter(ThreadSpecificData threadSpecificData) {
+        public SubImageFilter(ThreadSpecificData threadSpecificData) {
             this.data = threadSpecificData;
         }
 
@@ -57,7 +58,6 @@ public class ImgSrv {
                             , 0
                             , new ThreadSpecificDataT(data.getThread_id()
                                     , data.getBarrier()
-                                    , data.getLock()
                                     , data.getNUM_THREADS()));
                 } else if (filterName.toLowerCase(Locale.ROOT)
                         .equals(Filters.CONTRAST.toString().toLowerCase(Locale.ROOT))) {
@@ -71,7 +71,6 @@ public class ImgSrv {
                             ,0
                             , new ThreadSpecificDataT(data.getThread_id()
                                     , data.getBarrier()
-                                    , data.getLock()
                                     , data.getNUM_THREADS()));
                 } else {
                     filter = FilterFactory.filterCreate(filterName
@@ -81,7 +80,6 @@ public class ImgSrv {
                             ,0
                             , new ThreadSpecificDataT(data.getThread_id()
                                     , data.getBarrier()
-                                    , data.getLock()
                                     , data.getNUM_THREADS()));
                 }
 
@@ -126,27 +124,37 @@ public class ImgSrv {
 
     public Image process(Image image, List<String> filter) {
         assert (NUM_THREADS == 4);
-        List<Thread> threads = new ArrayList<>(NUM_THREADS);
+        List<Callable<Object>> threads = new ArrayList<>(NUM_THREADS);
         List<ThreadSpecificData> specificDataList = new ArrayList<>(NUM_THREADS);
         CyclicBarrier barrier = new CyclicBarrier(NUM_THREADS);
-        Lock lock = new ReentrantLock();
+        ExecutorService executor = Executors.newFixedThreadPool(NUM_THREADS);
 
         Image newImage = new Image(image.width - 2, image.height - 2);
 
         for (int i = 0; i < NUM_THREADS; i++)
-            specificDataList.add(new ThreadSpecificData(i, barrier, lock, image, newImage, filter.size(), NUM_THREADS, filter));
+            specificDataList.add(new ThreadSpecificData(i, barrier, image, newImage, filter.size(), NUM_THREADS, filter));
 
         for (int i = 0; i < NUM_THREADS; i++) {
-            threads.add(new SubImageFilter(specificDataList.get(i)));
-            threads.get(i).start();
+            threads.add(
+                    Executors.callable(
+                            new SubImageFilter(
+                                    specificDataList.get(i))));
         }
 
-        for (int i = 0; i < NUM_THREADS; i++) {
-            try {
-                threads.get(i).join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        try {
+            executor.invokeAll(threads);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // This will make the executor accept no new threads
+        // and finish all existing threads in the queue
+        executor.shutdown();
+        // Wait until all threads are finish
+        try {
+            assertTrue(executor.awaitTermination(40, TimeUnit.SECONDS));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
         return newImage;
     }

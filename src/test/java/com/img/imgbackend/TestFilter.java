@@ -63,13 +63,9 @@ public class TestFilter {
 
     private CyclicBarrier cyclicBarrier;
 
-    private Lock lock;
-
     private int NUM_THREADS;
 
     private static final Logger log = LogManager.getLogger(TestFilter.class);
-
-
 
     @BeforeEach
     public void init() throws IOException {
@@ -82,7 +78,7 @@ public class TestFilter {
 
         NUM_THREADS = 1;
         cyclicBarrier = new CyclicBarrier(NUM_THREADS);
-        lock = new ReentrantLock();
+
     }
 
     @Test
@@ -93,7 +89,7 @@ public class TestFilter {
 
         final Image input = imageFormatIO.bufferedToModelImage(bufferedImage);
         final Image output = new Image(input.width - 2, input.height - 2);
-        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, lock, NUM_THREADS);
+        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS);
         BlackWhiteFilter blackWhiteFilter = new BlackWhiteFilter(addData);
 
         blackWhiteFilter.applyFilter(input, output);
@@ -118,7 +114,7 @@ public class TestFilter {
         final Image output = new Image(input.width - 2, input.height - 2);
 
         // create additional data and filter
-        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, lock, NUM_THREADS);
+        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS);
         SepiaFilter sepiaFilter = new SepiaFilter(addData);
 
         sepiaFilter.applyFilter(input, output);
@@ -143,7 +139,7 @@ public class TestFilter {
         final Image output = new Image(input.width - 2, input.height - 2);
 
         // create additional data and filter
-        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, lock, NUM_THREADS);
+        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS);
         DummyFilter dummyFilter = new DummyFilter(addData);
 
         dummyFilter.applyFilter(input, output);
@@ -162,7 +158,7 @@ public class TestFilter {
         final Image output = new Image(input.width - 2, input.height - 2);
 
         // create additional data and filter
-        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, lock, NUM_THREADS);
+        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS);
         BrightnessFilter dummyFilter = new BrightnessFilter(0.2f, addData);
 
         dummyFilter.applyFilter(input, output);
@@ -181,7 +177,7 @@ public class TestFilter {
         final Image output = new Image(input.width - 2, input.height - 2);
 
         // create additional data and filter
-        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, lock, NUM_THREADS);
+        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS);
         CannyEdgeDetectionFilter cannyEdgeDetectionFilter = new CannyEdgeDetectionFilter(addData);
 
         try {
@@ -204,7 +200,7 @@ public class TestFilter {
         final Image output = new Image(input.width - 2, input.height - 2);
 
         // create additional data and filter
-        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, lock, NUM_THREADS);
+        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS);
         ContrastFilter con = new ContrastFilter(0.1f, addData);
 
         con.applyFilter(input, output);
@@ -223,7 +219,7 @@ public class TestFilter {
         final Image output = new Image(input.width - 2, input.height - 2);
 
         // create additional data and filter
-        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, lock, NUM_THREADS);
+        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS);
         DoubleThresholdFilter filter = new DoubleThresholdFilter(addData);
 
         try {
@@ -246,7 +242,7 @@ public class TestFilter {
         final Image output = new Image(input.width - 2, input.height - 2);
 
         // create additional data and filter
-        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, lock, NUM_THREADS);
+        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS);
         EdgeTrackingFilter filter = new EdgeTrackingFilter(addData);
 
         filter.applyFilter(input, output);
@@ -265,7 +261,7 @@ public class TestFilter {
         final Image output = new Image(input.width - 2, input.height - 2);
 
         // create additional data and filter
-        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, lock, NUM_THREADS);
+        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS);
         EmbossFilter embossFilter = new EmbossFilter(addData);
 
         embossFilter.applyFilter(input, output);
@@ -284,7 +280,7 @@ public class TestFilter {
         final Image output = new Image(input.width - 2, input.height - 2);
 
         // create additional data and filter
-        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, lock, NUM_THREADS);
+        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS);
         GaussianBlurFilter filter = new GaussianBlurFilter(addData);
 
         filter.applyFilter(input, output);
@@ -303,7 +299,7 @@ public class TestFilter {
         final Image output = new Image(input.width - 2, input.height - 2);
 
         // create additional data and filter
-        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, lock, NUM_THREADS);
+        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS);
         GradientFilter filter = new GradientFilter(addData);
 
         try {
@@ -326,7 +322,7 @@ public class TestFilter {
         final Image output = new Image(input.width - 2, input.height - 2);
 
         // create additional data and filter + gradient filter, bc non-maximum needs the theta obtained from it
-        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, lock, NUM_THREADS);
+        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS);
         GradientFilter gradient = new GradientFilter(addData);
         try {
             gradient.applyFilter(input, output);
@@ -351,7 +347,7 @@ public class TestFilter {
         final Image output = new Image(input.width - 2, input.height - 2);
 
         // create additional data and filter
-        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, lock, NUM_THREADS);
+        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS);
         SharpenFilter filter = new SharpenFilter(addData);
 
         filter.applyFilter(input, output);
