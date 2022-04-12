@@ -31,3 +31,24 @@ build/
 
 ### VS Code ###
 .vscode/
+/src/main/resources/static/css/
+/src/main/resources/static/img/
+/src/main/resources/static/js/
+/src/main/resources/static/ns-1/
+/src/main/resources/static/ns-2/
+/src/main/resources/static/ns-3/
+/src/main/resources/static/ns-4/
+/src/main/resources/static/ns-5/
+/src/main/resources/static/ns-6/
+/src/main/resources/static/ns-7/
+/src/main/resources/static/ns-8/
+/src/main/resources/static/index.html
+/src/main/resources/static/index_SORT_BY_BLOCK.html
+/src/main/resources/static/index_SORT_BY_BLOCK_DESC.html
+/src/main/resources/static/index_SORT_BY_CLASS.html
+/src/main/resources/static/index_SORT_BY_CLASS_DESC.html
+/src/main/resources/static/index_SORT_BY_LINE.html
+/src/main/resources/static/index_SORT_BY_LINE_DESC.html
+/src/main/resources/static/index_SORT_BY_METHOD.html
+/src/main/resources/static/index_SORT_BY_METHOD_DESC.html
+/src/main/resources/static/index_SORT_BY_NAME_DESC.html
