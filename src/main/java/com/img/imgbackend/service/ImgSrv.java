@@ -24,11 +24,11 @@ public class ImgSrv {
     @Value("${NUM_THREADS}")
     Integer NUM_THREADS;
 
-    class SubImageFilter extends Thread {
+    public class SubImageFilter extends Thread {
         ThreadSpecificData data;
         private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SubImageFilter.class);
 
-        SubImageFilter(ThreadSpecificData threadSpecificData) {
+        public SubImageFilter(ThreadSpecificData threadSpecificData) {
             this.data = threadSpecificData;
         }
 
