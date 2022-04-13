@@ -18,7 +18,7 @@ public class GradientFilter extends Filter {
             {0, 0, 0},
             {-1, -2, -1}};
 
-    private static float gMax = -3.40282347e+38F;
+    private static volatile float gMax = -3.40282347e+38F;
     private static float[][] Ix, Iy, auxTheta;
 
 
@@ -51,8 +51,6 @@ public class GradientFilter extends Filter {
             Ix = new float[image.height][];
             Iy = new float[image.height][];
             auxTheta = new float[image.height][];
-            this.thetaHeight = image.height;
-            this.thetaWidth = image.width;
 
             for (int i = 0; i < image.height; ++i) {
                 Ix[i] = new float[image.width];
