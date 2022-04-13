@@ -13,6 +13,7 @@ import com.img.imgbackend.utils.ThreadSpecificDataT;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.Binary;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -54,7 +55,7 @@ public class PerformanceTest {
 
     private static final int NUM_THREADS = 4;
 
-    @Test
+    @RepeatedTest(2)
     public void testCannyEdgeDetectionFilter() throws IOException {
         log.debug("start canny performance test!!!!!!!!!!!!!");
         File inputFile = new ClassPathResource("noise.png").getFile();
