@@ -39,7 +39,7 @@ public class ImgSrv {
                 log.debug(String.format("applying %d filters", data.getNrFilters()));
             }
             for (int i = 0; i < data.getNrFilters(); ++i) {
-                String filterName  = data.getFilters().get(i);
+                String filterName  = data.getFilters()[i];
                 if (data.getThread_id() == 0) {
                     log.debug("filter " + filterName + " executes");
                 }
@@ -47,7 +47,7 @@ public class ImgSrv {
                         .equals(Filters.BRIGHTNESS.toString().toLowerCase(Locale.ROOT))) {
                     // increment index to get the brightness level from data.filters
                     ++i;
-                    param = Double.parseDouble(data.getFilters().get(i));
+                    param = Double.parseDouble(data.getFilters()[i]);
                     log.debug(String.format("using level %f", param));
 
                     filter = FilterFactory.filterCreate(filterName
@@ -61,7 +61,7 @@ public class ImgSrv {
                                     , data.getNUM_THREADS()));
                 } else if (filterName.toLowerCase(Locale.ROOT)
                         .equals(Filters.CONTRAST.toString().toLowerCase(Locale.ROOT))) {
-                        param = Double.parseDouble(data.getFilters().get(++i));
+                        param = Double.parseDouble(data.getFilters()[++i]);
                         System.out.println(param);
 
                     filter = FilterFactory.filterCreate(filterName
@@ -95,10 +95,7 @@ public class ImgSrv {
                 } catch (InterruptedException | BrokenBarrierException e) {
                     e.printStackTrace();
                 }
-                log.debug("passed in thread " + data.getThread_id() + "the barrier\n");
 
-                // this piece of code isn't actually tested yet
-                // TODO: upon testing rm this comment
                 if (i == (data.getNrFilters() - 1)) {
                     if (data.getNrFilters() % 2 == 0) {
                         int slice = (data.getImage().height - 2) / NUM_THREADS;
@@ -124,7 +121,7 @@ public class ImgSrv {
     }
 
 
-    public Image process(Image image, List<String> filter) {
+    public Image process(Image image, String[] filterNames, String[] filterParams) {
         assert (NUM_THREADS == 4);
         List<Thread> threads = new ArrayList<>(NUM_THREADS);
         List<ThreadSpecificData> specificDataList = new ArrayList<>(NUM_THREADS);
@@ -134,7 +131,14 @@ public class ImgSrv {
         Image newImage = new Image(image.width - 2, image.height - 2);
 
         for (int i = 0; i < NUM_THREADS; i++)
-            specificDataList.add(new ThreadSpecificData(i, barrier, lock, image, newImage, filter.size(), NUM_THREADS, filter));
+            specificDataList.add(new ThreadSpecificData(i
+                    , barrier
+                    , lock
+                    , image
+                    , newImage
+                    , filterNames.length
+                    , NUM_THREADS
+                    , filterNames));
 
         for (int i = 0; i < NUM_THREADS; i++) {
             threads.add(new SubImageFilter(specificDataList.get(i)));
