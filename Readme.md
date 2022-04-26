@@ -3,6 +3,9 @@
 ## Technology stack
 I used Spring Boot with Java 17 and Maven 3.6.3 for the backend. As database, I used MongoDB 4.4.4.
 
+## Branches
+Each branch of {notify, forkJoinPool and javaUtilExecutor} is a different approach for the backend multithreaded structure.
+
 ## Endpoints
 - api/uploadImage - used for uploading images
 - api/downloadImage/{id} - for downloading images after an filter has been applied
