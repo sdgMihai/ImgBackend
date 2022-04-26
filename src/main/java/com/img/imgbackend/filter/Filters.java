@@ -2,7 +2,7 @@ package com.img.imgbackend.filter;
 
 public enum Filters {
     /**
-     * filtrele disponibile - id-urile filtrelor
+     * filters that can be obtained with factory - filters' names
      */
 
         SHARPEN("sharpen"),
@@ -15,7 +15,6 @@ public enum Filters {
         NON_MAXIMUM_SUPPRESSION("non-maximum-suppression"),
         DOUBLE_THRESHOLD("double-threshold"),
         EDGE_TRACKING("edge-tracking"),
-        GRADIENT("gradient"),
         CANNY_EDGE_DETECTION("canny-edge-detection");
 
     /**

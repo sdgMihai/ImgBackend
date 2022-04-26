@@ -3,33 +3,22 @@ package com.img.imgbackend.filter;
 
 import com.img.imgbackend.utils.Image;
 import com.img.imgbackend.utils.Pixel;
-import com.img.imgbackend.utils.ThreadSpecificDataT;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class BlackWhiteFilter extends Filter {
 
-    public BlackWhiteFilter(FilterAdditionalData filter_additional_data) {
-        this.filter_additional_data = filter_additional_data;
-    }
-
     /**
-     * @param image    referinta catre imagine
-     * @param newImage referinta catre obiectul tip Image
-     *                 care va contine imaginea rezultata in urma
-     *                 aplicarii filtrului.
+     * @param image    input image reference.
+     * @param newImage output image reference.
+     * @param start    first line to be processed from input image.
+     * @param stop     past last line to be processed from input image.
      */
     @Override
-    public void applyFilter(Image image, Image newImage) {
-        ThreadSpecificDataT tData = (ThreadSpecificDataT) filter_additional_data;
-        int slice = (image.height - 2) / tData.NUM_THREADS;//imaginea va avea un rand de pixeli deasupra si unul dedesubt
-        //de aici '-2' din ecuatie
-        int start = Math.max(1, tData.threadID * slice);
-        int stop = (tData.threadID + 1) * slice;
-        if (tData.threadID + 1 == tData.NUM_THREADS) {
-            stop = Math.max((tData.threadID + 1) * slice, image.height - 1);
-        }
-
+    public void applyFilter(Image image, Image newImage, int start, int stop) {
+        log.debug("applying bw filter");
         for (int i = start; i < stop; ++i) {
-            for (int j = 0; j < image.width - 1; ++j) {
+            for (int j = 1; j < image.width - 1; ++j) {
                 int gray = (int) (0.2126 * image.matrix[i][j].r +
                         0.7152 * image.matrix[i][j].g +
                         0.0722 * image.matrix[i][j].b);
@@ -38,4 +27,5 @@ public class BlackWhiteFilter extends Filter {
             }
         }
     }
+
 }

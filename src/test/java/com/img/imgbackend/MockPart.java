@@ -32,7 +32,7 @@ public class MockPart extends MockMultipartFile implements Part {
     }
 
     public void init() {
-        this.headers = new HashMap<String, String>();
+        this.headers = new HashMap<>();
         if (getOriginalFilename() != null) {
             this.headers.put("Content-Disposition".toLowerCase(), "form-data; name=\"" + getName() + "\"; filename=\"" + getOriginalFilename() + "\"");
         } else {
@@ -49,11 +49,11 @@ public class MockPart extends MockMultipartFile implements Part {
     }
 
     @Override
-    public void write(String fileName) throws IOException {
+    public void write(String fileName) {
     }
 
     @Override
-    public void delete() throws IOException {
+    public void delete() {
     }
 
     @Override
@@ -63,7 +63,7 @@ public class MockPart extends MockMultipartFile implements Part {
 
     @Override
     public Collection<String> getHeaders(String name) {
-        List<String> res = new ArrayList<String>();
+        List<String> res = new ArrayList<>();
         if (getHeader(name) != null) {
             res.add(getHeader(name));
         }

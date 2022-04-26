@@ -4,8 +4,6 @@ import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
@@ -19,8 +17,6 @@ import java.util.Collections;
 @EnableMongoRepositories(basePackages = "com.img.imgbackend")
 public class MongoConfig extends AbstractMongoClientConfiguration {
     private final String database = "image";
-    private static final Logger log = LogManager.getLogger(MongoConfig.class);
-
 
     @Override
     protected String getDatabaseName() {
@@ -28,7 +24,7 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
     }
 
     @Bean
-    public MongoTemplate mongoTemplate() throws Exception {
+    public MongoTemplate mongoTemplate() {
         return new MongoTemplate(mongoClient(), database);
     }
 

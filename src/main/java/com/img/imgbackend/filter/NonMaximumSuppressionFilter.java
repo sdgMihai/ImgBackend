@@ -1,53 +1,28 @@
 package com.img.imgbackend.filter;
 
-
 import com.img.imgbackend.utils.Image;
 import com.img.imgbackend.utils.Pixel;
-import com.img.imgbackend.utils.ThreadSpecificDataT;
+import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
 public class NonMaximumSuppressionFilter extends Filter {
     private float[][] theta;
-    private final int thetaHeight;
-    private final int thetaWidth;
-
-    public NonMaximumSuppressionFilter(float[][] theta, int thetaHeight,
-                                       int thetaWidth) {
-        this.filter_additional_data = null;
-        this.thetaWidth = thetaWidth;
-        this.thetaHeight = thetaHeight;
-        this.theta = theta;
-    }
-
-    public NonMaximumSuppressionFilter(float[][] theta, int thetaHeight,
-                                       int thetaWidth, FilterAdditionalData filter_additional_data) {
-        this.filter_additional_data = filter_additional_data;
-        this.thetaWidth = thetaWidth;
-        this.thetaHeight = thetaHeight;
-        this.theta = theta;
-    }
 
     /**
-     * @param image referinta catre imagine
-     * @param newImage referinta catre obiectul tip Image
-     *          care va contine imaginea rezultata in urma
-     *          aplicarii filtrului.
+     * This is the non-maximum suppression filter.
+     *
+     * @param image    reference to input image.
+     * @param newImage reference to output image.
+     * @param start    The first line the filter is applied on.
+     * @param stop     The line after the last line the filter is applied on.
      */
     @Override
-    public void applyFilter(Image image, Image newImage) {
-        ThreadSpecificDataT tData = (ThreadSpecificDataT) filter_additional_data;
-        int slice = (image.height - 2) / tData.NUM_THREADS;  // imaginea va avea un rand de pixeli deasupra si unul dedesubt
-        //de aici '-2' din ecuatie
-        int start = Math.max(1, tData.threadID * slice);
-        int stop = (tData.threadID + 1) * slice;
-        if (tData.threadID + 1 == tData.NUM_THREADS) {
-            stop = Math.max((tData.threadID + 1) * slice, image.height - 1);
-        }
-
-        for ( int i = start; i < stop; ++i) {
-            for ( int j = 1; j < image.width - 1; ++j) {
+    public void applyFilter(Image image, Image newImage, int start, int stop) {
+        for (int i = start; i < stop; ++i) {
+            for (int j = 1; j < image.width - 1; ++j) {
                 float q = 255;
                 float r = 255;
-                if ((0 <= theta[i][j] && theta[i][j] < 22.5) || (157.5 <= theta[i][j] && theta[i][j] <= 180))  {
+                if ((0 <= theta[i][j] && theta[i][j] < 22.5) || (157.5 <= theta[i][j] && theta[i][j] <= 180)) {
                     q = image.matrix[i][j + 1].r;
                     r = image.matrix[i][j - 1].r;
                 } else {
@@ -69,9 +44,9 @@ public class NonMaximumSuppressionFilter extends Filter {
                 Pixel newPixel = new Pixel();
                 newPixel.a = image.matrix[i][j].a;
                 if (image.matrix[i][j].r >= q && image.matrix[i][j].r >= r) {
-                    newPixel.r =  newPixel.g = newPixel.b = image.matrix[i][j].r;
+                    newPixel.r = newPixel.g = newPixel.b = image.matrix[i][j].r;
                 } else {
-                    newPixel.r =  newPixel.g = newPixel.b = 0;
+                    newPixel.r = newPixel.g = newPixel.b = 0;
                 }
                 newImage.matrix[i][j] = newPixel;
             }

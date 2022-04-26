@@ -9,17 +9,18 @@ public class Image {
     public Pixel[][] matrix;
 
     /**
-     * constructor - aloca memorie pentru o imagine bordata cu pixel-zero(r = g = b = a = 0)
-     * OBS: Imaginea initial va contine doar pixeli-zero.
-     * Ea va fi populata cand se vor citii datele din fisier(deci in ImageIO
-     * functia de imageRead va popula imaginea)
-     * @param width latime imagine
-     * @param height inaltime imagine
+     * constructor - memory allocation for a '0'-pixel bordered image(r = g = b = a = 0)
+     * OBS: The initial image will comprise only of 0 pixels.
+     * It will be populated when the file has been read(so in ImageIO
+     * the imageRead method will populate the image)
+     * @param width image width(including the border)
+     * @param height image height(including the border)
      */
     public Image(int width,int height) {
         this.width = width + 2;
         this.height = height + 2;
         this.matrix = new Pixel[this.height][this.width];
+
 
         // bordering with '0' pixel
         for (int i = 0; i < this.width; ++i) {
@@ -44,7 +45,7 @@ public class Image {
     @Override
     public int hashCode() {
         int result = Objects.hash(width, height);
-        result = 31 * result + Arrays.hashCode(matrix);
+        result = 31 * result + Arrays.deepHashCode(matrix);
         return result;
     }
 

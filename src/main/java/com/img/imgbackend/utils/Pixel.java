@@ -9,19 +9,19 @@ public class Pixel {
     public char a;
 
     /**
-     * constructor - creeaza un pixel-zero (r = g = b = a = 0)
+     * constructor - creates a 0-pixel (r = g = b = a = 0)
      */
     public Pixel() {
         this.r = this.g = this.b = this.a = 0;
     }
 
     /**
-     * constructor - creeaza un obiect pixel cu cele trei componente
+     * constructor - creates a pixel
      *
-     * @param r componenta red
-     * @param g componenta green
-     * @param b componenta blue
-     * @param a componenta alfa
+     * @param r red component
+     * @param g green component
+     * @param b blue component
+     * @param a alfa component
      */
     public Pixel(char r, char g, char b, char a) {
         this.r = r;

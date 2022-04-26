@@ -3,16 +3,13 @@ package com.img.imgbackend.filter;
 
 import com.img.imgbackend.utils.Image;
 
-import java.util.concurrent.BrokenBarrierException;
-
 public abstract class Filter {
-    public FilterAdditionalData filter_additional_data;
     /**
-     * aplica un filtru pe imagine
-     * @param image referinta catre imagine
-     * @param newImage referinta catre obiectul tip Image
-     *          care va contine imaginea rezultata in urma
-     *          aplicarii filtrului.
+     * @param image    input image reference.
+     * @param newImage output image reference.
+     * @param start first line to be processed from input image.
+     * @param stop past last line to be processed from input image.
      */
-    public abstract void applyFilter(Image image, Image newImage) throws BrokenBarrierException, InterruptedException;
+    public abstract void applyFilter(Image image, Image newImage, int start, int stop);
+
 }
