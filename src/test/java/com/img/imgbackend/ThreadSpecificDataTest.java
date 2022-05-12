@@ -4,8 +4,6 @@ import com.img.imgbackend.utils.Image;
 import com.img.imgbackend.utils.ThreadSpecificData;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -22,14 +20,14 @@ public class ThreadSpecificDataTest {
         Image output = new Image(1, 1);
         int nrFilters = 1;
         int NUM_THREADS = 1;
-        List<String> filterList = new ArrayList<>();
+        String[] filterArr = new String[]{"black-white"};
         ThreadSpecificData capsule = new ThreadSpecificData(threadID
                 , cyclicBarrier
                 , input
                 , output
                 , nrFilters
                 , NUM_THREADS
-                , filterList
+                , filterArr
         );
         assertEquals (threadID, capsule.getThread_id());
         assertEquals(cyclicBarrier, capsule.getBarrier());
@@ -37,6 +35,6 @@ public class ThreadSpecificDataTest {
         assertEquals(output, capsule.getNewImage());
         assertEquals(nrFilters, capsule.getNrFilters());
         assertEquals(NUM_THREADS, capsule.getNUM_THREADS());
-        assertEquals(filterList, capsule.getFilters());
+        assertEquals(filterArr, capsule.getFilters());
     }
 }

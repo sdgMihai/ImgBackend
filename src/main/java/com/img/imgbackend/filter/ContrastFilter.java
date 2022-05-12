@@ -6,13 +6,12 @@ import com.img.imgbackend.utils.ThreadSpecificDataT;
 
 
 public class ContrastFilter extends Filter {
-    // intre -128 si 128
     private final float contrast;
 
     /**
      * constructor
      *
-     * @param contrast
+     * @param contrast a value x describing the contrast level, where x in [-128, 128]
      */
     public ContrastFilter(float contrast, FilterAdditionalData filter_additional_data) {
         this.contrast = contrast;
@@ -36,7 +35,7 @@ public class ContrastFilter extends Filter {
             stop = Math.max((tData.threadID + 1) * slice, image.height - 1);
         }
 
-        float factor = (float)  (259 * (this.contrast + 255.) / (255. * (259. - this.contrast)));
+        float factor = (float)  (259. * (this.contrast + 255.) / (255. * (259. - this.contrast)));
         for (int i = start; i < stop; ++i) {
             for (int j = 1; j < image.width - 1; ++j) {
                 Pixel newPixel = new Pixel();
