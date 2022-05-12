@@ -48,4 +48,6 @@ those used to encapsulate thread specific data, called ThreadSpecificData and Th
 - Both the application.properties and the log4j2.xml file contain settings regarding the logging, the application.properties \
 contains the logging level(without this setting, nothing gets printed) and the other the log4j2 settings.
 
+## Tests
+- the test suite is a combination of unit tests and tests made to measure performance or simple tests.
 This project was created by Mihai Gheoace.
