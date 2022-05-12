@@ -2,6 +2,7 @@ package com.img.imgbackend;
 
 import com.img.imgbackend.filter.Filters;
 import com.img.imgbackend.repository.ImageFormatIO;
+import com.img.imgbackend.service.FilterService;
 import com.img.imgbackend.service.ImgSrv;
 import com.img.imgbackend.utils.Image;
 import com.img.imgbackend.utils.ThreadSpecificData;
@@ -35,10 +36,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 )
 @Slf4j
 public class PerformanceTest {
+    private static final int NUM_THREADS = 4;
     @Autowired
     private ImageFormatIO imageFormatIO;
-
-    private static final int NUM_THREADS = 4;
 
     @RepeatedTest(2)
     public void testCannyEdgeDetectionFilter() throws IOException {
@@ -58,18 +58,23 @@ public class PerformanceTest {
         );
 
         List<Thread> tasks = new ArrayList<>(NUM_THREADS);
-        String[] filter = new String[]{Filters.CANNY_EDGE_DETECTION.toString()};
+        String[] filterNames = new String[]{Filters.CANNY_EDGE_DETECTION.toString()};
         Lock lock = new ReentrantLock();
 
         final CyclicBarrier barrier = new CyclicBarrier(NUM_THREADS);
         List<ThreadSpecificData> specificDataList = new ArrayList<>(NUM_THREADS);
         for (int i = 0; i < NUM_THREADS; i++)
-            specificDataList.add(new ThreadSpecificData(i, barrier,lock, input, output, filter.length, NUM_THREADS, filter));
+            specificDataList.add(new ThreadSpecificData(i, barrier, lock, input, output, filterNames.length, NUM_THREADS, filterNames));
 
         ImgSrv imgSrv = new ImgSrv();
 
         for (int i = 0; i < NUM_THREADS; i++) {
-            tasks.add(imgSrv.new SubImageFilter(specificDataList.get(i)));
+            tasks.add(
+                    new ImgSrv.SubImageFilter(
+                            FilterService.getFilters(filterNames
+                                    , null
+                                    , specificDataList.get(i))
+                            , specificDataList.get(i)));
             tasks.get(i).start();
         }
 
@@ -84,20 +89,6 @@ public class PerformanceTest {
         assertEquals(input.width, output.width);
         assertEquals(input.height, output.height);
         assertEquals(result, output);
-
-//        for (int i = 1; i < output.height - 1; i++) {
-//            for (int j = 1; j < output.width - 1; j++) {
-//                if(!output.matrix[i][j].equals(result.matrix[i][j]) ) {
-//                    log.debug(String.format("diff at [%d][%d], out = %s, res = %s"
-//                            , i
-//                            , j
-//                            , output.matrix[i][j]
-//                            , result.matrix[i][j]));
-//                    return;
-//                }
-//            }
-//
-//        }
     }
 
 }

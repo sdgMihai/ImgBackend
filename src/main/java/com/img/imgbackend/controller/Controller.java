@@ -1,7 +1,6 @@
 package com.img.imgbackend.controller;
 
 import com.img.imgbackend.repository.ImageFormatIO;
-import com.img.imgbackend.repository.ImageRepository;
 import com.img.imgbackend.service.ImgSrv;
 import com.img.imgbackend.utils.Image;
 import lombok.extern.slf4j.Slf4j;
@@ -24,13 +23,11 @@ import java.util.Iterator;
 @RestController
 @RequestMapping("/api/")
 public class Controller {
-    private final ImageRepository imageRepository;
     private final ImgSrv imgSrv;
     private final ImageFormatIO imageFormatIO;
 
     @Autowired
-    public Controller(ImageRepository imageRepository, ImgSrv imgSrv, ImageFormatIO imageFormatIO) {
-        this.imageRepository = imageRepository;
+    public Controller(ImgSrv imgSrv, ImageFormatIO imageFormatIO) {
         this.imgSrv = imgSrv;
         this.imageFormatIO = imageFormatIO;
     }
