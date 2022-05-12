@@ -37,9 +37,8 @@ public class ImageFormatIO {
         BufferedImage res = new BufferedImage(image.width - 2, image.height - 2, TYPE_4BYTE_ABGR);
         for (int i  = 1; i < image.height - 1; ++i) {
             for (int j = 1; j < image.width - 1; j++) {
-//                log.debug(String.format("image[%d][%d]", i, j));
                 Pixel pixelC = image.matrix[i][j];
-                int pixelI = 0;
+                int pixelI;
                 int red = pixelC.r;
                 int green = pixelC.g;
                 int blue = pixelC.b;
