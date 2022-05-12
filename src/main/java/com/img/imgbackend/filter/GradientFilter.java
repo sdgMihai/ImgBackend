@@ -51,8 +51,6 @@ public class GradientFilter extends Filter {
             Ix = new float[image.height][];
             Iy = new float[image.height][];
             auxTheta = new float[image.height][];
-            this.thetaHeight = image.height;
-            this.thetaWidth = image.width;
 
             for (int i = 0; i < image.height; ++i) {
                 Ix[i] = new float[image.width];
@@ -69,7 +67,6 @@ public class GradientFilter extends Filter {
 
 
         // prioritize gc to deallocate auxTheta
-        // TODO: check if it actually works
         System.gc();
 
         // 1. Se aplica kernelul Gx pe imagine si se obtine Ix
@@ -137,7 +134,6 @@ public class GradientFilter extends Filter {
         tData.barrier.await();
 
         // deallocate Ix &Iy
-        // TODO: check if it actually works
         System.gc();
     }
 }
