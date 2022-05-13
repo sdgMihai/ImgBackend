@@ -28,13 +28,12 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
     }
 
     @Bean
-    public MongoTemplate mongoTemplate() throws Exception {
+    public MongoTemplate mongoTemplate() {
         return new MongoTemplate(mongoClient(), database);
     }
 
     @Override
     public MongoClient mongoClient() {
-//        ConnectionString connectionString = new ConnectionString("mongodb://root:example@sm_db:27017/" + database + "?authSource=admin");
         ConnectionString connectionString = new ConnectionString("mongodb://localhost:27017/" + database);
         MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
             .applyConnectionString(connectionString)
