@@ -2,10 +2,7 @@ package com.img.imgbackend.filter;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class FilterFactory {
@@ -37,15 +34,15 @@ public class FilterFactory {
         }
 
         return switch (it) {
-            case SHARPEN -> new SharpenFilter(varargs);
+            case SHARPEN -> new SharpenFilter();
             case EMBOSS -> new EmbossFilter(varargs);
-            case BLACK_WHITE -> new BlackWhiteFilter(varargs);
-            case BRIGHTNESS -> new BrightnessFilter(param, varargs);
+            case BLACK_WHITE -> new BlackWhiteFilter();
+            case BRIGHTNESS -> new BrightnessFilter(param);
             case CANNY_EDGE_DETECTION -> new CannyEdgeDetectionFilter(varargs);
             case CONTRAST -> new ContrastFilter(param, varargs);
             case DOUBLE_THRESHOLD -> new DoubleThresholdFilter(varargs);
-            case EDGE_TRACKING -> new EdgeTrackingFilter(varargs);
-            case GAUSSIAN_BLUR -> new GaussianBlurFilter(varargs);
+            case EDGE_TRACKING -> new EdgeTrackingFilter();
+            case GAUSSIAN_BLUR -> new GaussianBlurFilter();
             case NON_MAXIMUM_SUPPRESSION -> new NonMaximumSuppressionFilter(theta, thetaHeight, thetaWidth, varargs);
             case GRADIENT -> new GradientFilter(varargs);
             case SEPIA -> new SepiaFilter(varargs);

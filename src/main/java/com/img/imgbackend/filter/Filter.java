@@ -14,5 +14,5 @@ public abstract class Filter {
      *          care va contine imaginea rezultata in urma
      *          aplicarii filtrului.
      */
-    public abstract void applyFilter(Image image, Image newImage) throws BrokenBarrierException, InterruptedException;
+    public abstract void applyFilter(Image image, Image newImage, int start, int stop) throws BrokenBarrierException, InterruptedException;
 }

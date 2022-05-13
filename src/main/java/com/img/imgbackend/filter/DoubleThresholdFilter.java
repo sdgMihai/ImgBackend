@@ -8,8 +8,6 @@ import java.util.concurrent.BrokenBarrierException;
 
 public class DoubleThresholdFilter extends Filter {
 
-    private final float thresholdHigh = 0.06f;
-    private final float thresholdLow = 0.05f;
     private static volatile float maxVal = -3.40282347e+38F;
 
     public DoubleThresholdFilter() {
@@ -21,21 +19,14 @@ public class DoubleThresholdFilter extends Filter {
     }
 
     /**
-     * @param image    referinta catre imagine
-     * @param newImage referinta catre obiectul tip Image
-     *                 care va contine imaginea rezultata in urma
-     *                 aplicarii filtrului.
+     * @param image    input image reference.
+     * @param newImage output image reference.
+     * @param start    first line to be processed from input image.
+     * @param stop     past last line to be processed from input image.
      */
     @Override
-    public void applyFilter(Image image, Image newImage) throws BrokenBarrierException, InterruptedException {
+    public void applyFilter(Image image, Image newImage, int start, int stop) throws BrokenBarrierException, InterruptedException {
         ThreadSpecificDataT tData = (ThreadSpecificDataT) filter_additional_data;
-        int slice = (image.height - 2) / tData.NUM_THREADS;  // imaginea va avea un rand de pixeli deasupra si unul dedesubt
-        //de aici '-2' din ecuatie
-        int start = Math.max(1, tData.threadID * slice);
-        int stop = (tData.threadID + 1) * slice;
-        if (tData.threadID + 1 == tData.NUM_THREADS) {
-            stop = Math.max((tData.threadID + 1) * slice, image.height - 1);
-        }
 
         float threadMaxVal = -3.40282347e+38F;
         for (int i = start; i < stop; ++i) {
@@ -50,8 +41,10 @@ public class DoubleThresholdFilter extends Filter {
         }
         tData.barrier.await();
 
-        float high = maxVal * this.thresholdHigh;
-        float low = high * this.thresholdLow;
+        float thresholdHigh = 0.06f;
+        float high = maxVal * thresholdHigh;
+        float thresholdLow = 0.05f;
+        float low = high * thresholdLow;
 
         for (int i = start; i < stop; ++i) {
             for (int j = 1; j < image.width - 1; ++j) {

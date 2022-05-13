@@ -4,7 +4,6 @@ import com.img.imgbackend.filter.Filter;
 import com.img.imgbackend.utils.Image;
 import com.img.imgbackend.utils.ImageUtils;
 import com.img.imgbackend.utils.ThreadSpecificData;
-import com.img.imgbackend.utils.ThreadSpecificDataT;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -86,12 +85,12 @@ public class ImgSrv {
             while (filterIt.hasNext()) {
                 int i = filterIt.nextIndex();
                 Filter filter = filterIt.next();
-                if (((ThreadSpecificDataT) filter.filter_additional_data).threadID == 0) {
+                if (data.getThread_id() == 0) {
                     log.debug(String.format("applying %d filters", filters.size()));
                 }
 
                 try {
-                    filter.applyFilter(data.getImage(), data.getNewImage());
+                    filter.applyFilter(data.getImage(), data.getNewImage(), 1, data.getImage().matrix.length - 1);
                 } catch (BrokenBarrierException | InterruptedException e) {
                     e.printStackTrace();
                 }

@@ -94,9 +94,9 @@ public class TestFilter {
         final Image input = imageFormatIO.bufferedToModelImage(bufferedImage);
         final Image output = new Image(input.width - 2, input.height - 2);
         FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, lock, NUM_THREADS);
-        BlackWhiteFilter blackWhiteFilter = new BlackWhiteFilter(addData);
+        BlackWhiteFilter blackWhiteFilter = new BlackWhiteFilter();
 
-        blackWhiteFilter.applyFilter(input, output);
+        blackWhiteFilter.applyFilter(input, output, 1, input.height - 1);
 
         Arrays.stream(output.matrix).flatMap(Stream::of).forEach(
                 pixel -> assertThat(pixel.r
@@ -121,7 +121,7 @@ public class TestFilter {
         FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, lock, NUM_THREADS);
         SepiaFilter sepiaFilter = new SepiaFilter(addData);
 
-        sepiaFilter.applyFilter(input, output);
+        sepiaFilter.applyFilter(input, output, 1, input.height - 1);
 
         //read result from memory
         File sepiaFile = new ClassPathResource("response.png").getFile();
@@ -146,7 +146,7 @@ public class TestFilter {
         FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, lock, NUM_THREADS);
         DummyFilter dummyFilter = new DummyFilter(addData);
 
-        dummyFilter.applyFilter(input, output);
+        dummyFilter.applyFilter(input, output, 1, input.height - 1);
 
         assertEquals(input.width, output.width);
         assertEquals(input.height, output.height);
@@ -163,9 +163,9 @@ public class TestFilter {
 
         // create additional data and filter
         FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, lock, NUM_THREADS);
-        BrightnessFilter dummyFilter = new BrightnessFilter(0.2f, addData);
+        BrightnessFilter dummyFilter = new BrightnessFilter(0.2f);
 
-        dummyFilter.applyFilter(input, output);
+        dummyFilter.applyFilter(input, output, 1, input.height - 1);
 
         assertEquals(input.width, output.width);
         assertEquals(input.height, output.height);
@@ -185,7 +185,7 @@ public class TestFilter {
         CannyEdgeDetectionFilter cannyEdgeDetectionFilter = new CannyEdgeDetectionFilter(addData);
 
         try {
-            cannyEdgeDetectionFilter.applyFilter(input, output);
+            cannyEdgeDetectionFilter.applyFilter(input, output, 1, input.height - 1);
         } catch (BrokenBarrierException | InterruptedException e) {
             e.printStackTrace();
         }
@@ -207,7 +207,7 @@ public class TestFilter {
         FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, lock, NUM_THREADS);
         ContrastFilter con = new ContrastFilter(0.1f, addData);
 
-        con.applyFilter(input, output);
+        con.applyFilter(input, output, 1, input.height - 1);
 
         assertEquals(input.width, output.width);
         assertEquals(input.height, output.height);
@@ -227,7 +227,7 @@ public class TestFilter {
         DoubleThresholdFilter filter = new DoubleThresholdFilter(addData);
 
         try {
-            filter.applyFilter(input, output);
+            filter.applyFilter(input, output, 1, input.height - 1);
         } catch (BrokenBarrierException | InterruptedException e) {
             e.printStackTrace();
         }
@@ -247,9 +247,9 @@ public class TestFilter {
 
         // create additional data and filter
         FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, lock, NUM_THREADS);
-        EdgeTrackingFilter filter = new EdgeTrackingFilter(addData);
+        EdgeTrackingFilter filter = new EdgeTrackingFilter();
 
-        filter.applyFilter(input, output);
+        filter.applyFilter(input, output, 1, input.height - 1);
 
         assertEquals(input.width, output.width);
         assertEquals(input.height, output.height);
@@ -268,7 +268,7 @@ public class TestFilter {
         FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, lock, NUM_THREADS);
         EmbossFilter embossFilter = new EmbossFilter(addData);
 
-        embossFilter.applyFilter(input, output);
+        embossFilter.applyFilter(input, output, 1, input.height - 1);
 
         assertEquals(input.width, output.width);
         assertEquals(input.height, output.height);
@@ -284,10 +284,9 @@ public class TestFilter {
         final Image output = new Image(input.width - 2, input.height - 2);
 
         // create additional data and filter
-        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, lock, NUM_THREADS);
-        GaussianBlurFilter filter = new GaussianBlurFilter(addData);
+        GaussianBlurFilter filter = new GaussianBlurFilter();
 
-        filter.applyFilter(input, output);
+        filter.applyFilter(input, output, 1, input.height - 1);
 
         assertEquals(input.width, output.width);
         assertEquals(input.height, output.height);
@@ -307,7 +306,7 @@ public class TestFilter {
         GradientFilter filter = new GradientFilter(addData);
 
         try {
-            filter.applyFilter(input, output);
+            filter.applyFilter(input, output, 1, input.height - 1);
         } catch (BrokenBarrierException | InterruptedException e) {
             e.printStackTrace();
         }
@@ -329,13 +328,13 @@ public class TestFilter {
         FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, lock, NUM_THREADS);
         GradientFilter gradient = new GradientFilter(addData);
         try {
-            gradient.applyFilter(input, output);
+            gradient.applyFilter(input, output, 1, input.height - 1);
         } catch (BrokenBarrierException | InterruptedException e) {
             e.printStackTrace();
         }
 
         NonMaximumSuppressionFilter filter = new NonMaximumSuppressionFilter(gradient.theta, 1, 1, addData);
-        filter.applyFilter(output, input);
+        filter.applyFilter(output, input, 1, output.height - 1);
 
         assertEquals(input.width, output.width);
         assertEquals(input.height, output.height);
@@ -352,9 +351,9 @@ public class TestFilter {
 
         // create additional data and filter
         FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, lock, NUM_THREADS);
-        SharpenFilter filter = new SharpenFilter(addData);
+        SharpenFilter filter = new SharpenFilter();
 
-        filter.applyFilter(input, output);
+        filter.applyFilter(input, output, 1, input.height - 1);
 
         assertEquals(input.width, output.width);
         assertEquals(input.height, output.height);

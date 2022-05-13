@@ -4,15 +4,10 @@ package com.img.imgbackend.filter;
 import com.img.imgbackend.utils.Image;
 import com.img.imgbackend.utils.Pixel;
 import com.img.imgbackend.utils.ThreadSpecificDataT;
-import org.springframework.beans.factory.annotation.Value;
 
-import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
 
 public class CannyEdgeDetectionFilter extends Filter {
-    private int rank;
-    private int numtasks;
-    private int chunk;
     private static float[][] auxTheta;
 
     public CannyEdgeDetectionFilter() {
@@ -22,21 +17,14 @@ public class CannyEdgeDetectionFilter extends Filter {
         this.filter_additional_data = filter_additional_data;
     }
     /**
-     * @param image referinta catre imagine
-     * @param newImage referinta catre obiectul tip Image
-     *          care va contine imaginea rezultata in urma
-     *          aplicarii filtrului.
+     * @param image    input image reference.
+     * @param newImage output image reference.
+     * @param start    first line to be processed from input image.
+     * @param stop     past last line to be processed from input image.
      */
     @Override
-    public void applyFilter(Image image, Image newImage) throws BrokenBarrierException, InterruptedException {
+    public void applyFilter(Image image, Image newImage, int start, int stop) throws BrokenBarrierException, InterruptedException {
         ThreadSpecificDataT tData = (ThreadSpecificDataT) filter_additional_data;
-        int slice = (image.height - 2) / tData.NUM_THREADS;//imaginea va avea un rand de pixeli deasupra si unul dedesubt
-        //de aici '-2' din ecuatie
-        int start = Math.max(1, tData.threadID * slice);
-        int stop = (tData.threadID + 1) * slice;
-        if (tData.threadID + 1 == tData.NUM_THREADS) {
-            stop = Math.max((tData.threadID + 1) * slice, image.height - 1);
-        }
 
         for (int i = start; i < stop; ++i) {
             for (int j = 0; j < image.width - 1; ++j) {
@@ -48,31 +36,31 @@ public class CannyEdgeDetectionFilter extends Filter {
             }
         }
 
-        BlackWhiteFilter step1 = new BlackWhiteFilter(tData);
-        step1.applyFilter(image, newImage);
+        BlackWhiteFilter step1 = new BlackWhiteFilter();
+        step1.applyFilter(image, newImage, 0, image.height - 1);
         tData.barrier.await();
 
-        GaussianBlurFilter step2 = new GaussianBlurFilter(tData);
-        step2.applyFilter(newImage, image);
+        GaussianBlurFilter step2 = new GaussianBlurFilter();
+        step2.applyFilter(newImage, image, 1, newImage.height - 1);
         tData.barrier.await();
 
         GradientFilter step3 = new GradientFilter(tData);
-        step3.applyFilter(image, newImage);
+        step3.applyFilter(image, newImage, 1, newImage.height - 1);
         if (tData.threadID == 0) {
             auxTheta = step3.theta;
         }
         tData.barrier.await();
 
         NonMaximumSuppressionFilter step4 = new NonMaximumSuppressionFilter(auxTheta, step3.thetaHeight, step3.thetaWidth, tData);
-        step4.applyFilter(newImage, image);
+        step4.applyFilter(newImage, image, 1, newImage.height - 1);
         tData.barrier.await();
 
         DoubleThresholdFilter step5 = new DoubleThresholdFilter(tData);
-        step5.applyFilter(image, newImage);
+        step5.applyFilter(image, newImage, 1, newImage.height - 1);
         tData.barrier.await();
 
-        EdgeTrackingFilter step6 = new EdgeTrackingFilter(tData);
-        step6.applyFilter(newImage, image);
+        EdgeTrackingFilter step6 = new EdgeTrackingFilter();
+        step6.applyFilter(newImage, image, 1, newImage.height - 1);
         tData.barrier.await();
 
         for (int i = start; i < stop; ++i) {

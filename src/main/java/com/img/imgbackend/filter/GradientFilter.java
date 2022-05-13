@@ -31,21 +31,14 @@ public class GradientFilter extends Filter {
     }
 
     /**
-     * @param image    referinta catre imagine
-     * @param newImage referinta catre obiectul tip Image
-     *                 care va contine imaginea rezultata in urma
-     *                 aplicarii filtrului.
+     * @param image    input image reference.
+     * @param newImage output image reference.
+     * @param start    first line to be processed from input image.
+     * @param stop     past last line to be processed from input image.
      */
     @Override
-    public void applyFilter(Image image, Image newImage) throws BrokenBarrierException, InterruptedException {
+    public void applyFilter(Image image, Image newImage, int start, int stop) throws BrokenBarrierException, InterruptedException {
         ThreadSpecificDataT tData = (ThreadSpecificDataT) filter_additional_data;
-        int slice = (image.height - 2) / tData.NUM_THREADS;//imaginea va avea un rand de pixeli deasupra si unul dedesubt
-        //de aici '-2' din ecuatie
-        int start = Math.max(1, tData.threadID * slice);
-        int stop = (tData.threadID + 1) * slice;
-        if (tData.threadID + 1 == tData.NUM_THREADS) {
-            stop = Math.max((tData.threadID + 1) * slice, image.height - 1);
-        }
 
         if (tData.threadID == 0) {
             Ix = new float[image.height][];
