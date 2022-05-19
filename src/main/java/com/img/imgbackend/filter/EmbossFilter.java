@@ -2,20 +2,11 @@ package com.img.imgbackend.filter;
 
 import com.img.imgbackend.utils.Image;
 import com.img.imgbackend.utils.Pixel;
-import com.img.imgbackend.utils.ThreadSpecificDataT;
 
-public class EmbossFilter extends Filter {
+public class EmbossFilter extends AbstractFilter {
     static final float[][] kernel = new float[][]{{0, 1, 0},
         {0, 0, 0},
         {0, -1, 0}};
-
-    EmbossFilter() {
-        this.filter_additional_data = null;
-    }
-
-    public EmbossFilter(FilterAdditionalData filter_additional_data) {
-        this.filter_additional_data = filter_additional_data;
-    }
 
     /**
      * @param image    input image reference.
@@ -23,10 +14,7 @@ public class EmbossFilter extends Filter {
      * @param start    first line to be processed from input image.
      * @param stop     past last line to be processed from input image.
      */
-    @Override
-    public void applyFilter(Image image, Image newImage, int start, int stop){
-        ThreadSpecificDataT tData = (ThreadSpecificDataT) filter_additional_data;
-
+    public void applyFilterPh1(Image image, Image newImage, int start, int stop){
         for (int i = start; i < stop; ++i) {
             for (int j = 1; j < image.width - 1; ++j) {
                 Pixel newPixel = new Pixel();

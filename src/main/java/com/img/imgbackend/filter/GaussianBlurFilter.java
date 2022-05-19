@@ -3,14 +3,10 @@ package com.img.imgbackend.filter;
 import com.img.imgbackend.utils.Image;
 import com.img.imgbackend.utils.Pixel;
 
-public class GaussianBlurFilter extends Filter {
+public class GaussianBlurFilter extends AbstractFilter {
     static final float kernel[][] = new float[][]{{1.f / 16.f, 2.f / 16.f, 1.f / 16.f},
             {2.f / 16.f, 4.f / 16.f, 2.f / 16.f},
             {1.f / 16.f, 2.f / 16.f, 1.f / 16.f}};
-
-    public GaussianBlurFilter() {
-        this.filter_additional_data = null;
-    }
 
     /**
      * @param image    input image reference.
@@ -18,8 +14,7 @@ public class GaussianBlurFilter extends Filter {
      * @param start    first line to be processed from input image.
      * @param stop     past last line to be processed from input image.
      */
-    @Override
-    public void applyFilter(Image image, Image newImage, int start, int stop) {
+    public void applyFilterPh1(Image image, Image newImage, int start, int stop) {
 
         for (int i = start; i < stop; ++i) {
             for (int j = 1; j < image.width - 1; ++j) {
