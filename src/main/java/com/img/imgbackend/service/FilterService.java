@@ -3,8 +3,6 @@ package com.img.imgbackend.service;
 import com.img.imgbackend.filter.Filter;
 import com.img.imgbackend.filter.FilterFactory;
 import com.img.imgbackend.filter.Filters;
-import com.img.imgbackend.utils.ThreadSpecificData;
-import com.img.imgbackend.utils.ThreadSpecificDataT;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -21,8 +19,7 @@ public class FilterService {
      Transform filter names and parameters to list of filters.
      */
     public static List<Filter> getFilters(String[] filterNames
-            , String[] filterParams
-            , ThreadSpecificData data) {
+            , String[] filterParams) {
         Iterator<String> filterParamsIt = null;
         if (filterParams != null) {
             filterParamsIt = Arrays.stream(filterParams).iterator();
@@ -42,11 +39,7 @@ public class FilterService {
                         , (float) param
                         , null
                         , 0
-                        , 0
-                        , new ThreadSpecificDataT(data.getThread_id()
-                                , data.getBarrier()
-                                , data.getLock()
-                                , data.getNUM_THREADS())));
+                        , 0));
             } else if (filterNameEquals(filterName, Filters.CONTRAST.toString())) {
                 double param = 0;
                 assert filterParamsIt != null;
@@ -59,21 +52,9 @@ public class FilterService {
                         , (float) param
                         , null
                         , 0
-                        ,0
-                        , new ThreadSpecificDataT(data.getThread_id()
-                                , data.getBarrier()
-                                , data.getLock()
-                                , data.getNUM_THREADS())));
+                        ,0));
             } else {
-                filters.add(FilterFactory.filterCreate(filterName
-                        , 0.0f
-                        , null
-                        , 0
-                        ,0
-                        , new ThreadSpecificDataT(data.getThread_id()
-                                , data.getBarrier()
-                                , data.getLock()
-                                , data.getNUM_THREADS())));
+                filters.add(FilterFactory.filterCreate(filterName));
             }
         }
         return filters;
