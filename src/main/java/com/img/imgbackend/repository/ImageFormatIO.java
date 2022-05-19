@@ -56,6 +56,9 @@ public class ImageFormatIO {
     }
 
     public byte[] bufferedToByteArray(BufferedImage buff) throws IOException {
+        if (buff == null) {
+            return null;
+        }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(buff, "png", baos);
         return baos.toByteArray();
