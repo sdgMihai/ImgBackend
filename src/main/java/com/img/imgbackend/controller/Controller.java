@@ -18,6 +18,8 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @Slf4j
 @RestController
@@ -55,9 +57,14 @@ public class Controller {
             BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(image));
 
             final Image input = imageFormatIO.bufferedToModelImage(bufferedImage);
-            final Image res;
+            final CompletableFuture<Image> res;
             res = imgSrv.process(input, filterNames, filterParams);
-            final BufferedImage image1 = imageFormatIO.modelToBufferedImage(res);
+            BufferedImage image1 = null;
+            try {
+                image1 = imageFormatIO.modelToBufferedImage(res.get());
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
             final byte[] bytes = imageFormatIO.bufferedToByteArray(image1);
             return ResponseEntity.ok(bytes);
         }
