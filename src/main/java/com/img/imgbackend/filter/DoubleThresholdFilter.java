@@ -1,46 +1,54 @@
 package com.img.imgbackend.filter;
 
 import com.img.imgbackend.utils.Image;
+import com.img.imgbackend.utils.ImageUtils;
 import com.img.imgbackend.utils.Pixel;
-import com.img.imgbackend.utils.ThreadSpecificDataT;
+import org.springframework.data.util.Pair;
 
-import java.util.concurrent.BrokenBarrierException;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
-public class DoubleThresholdFilter extends Filter {
-
-    private static volatile float maxVal = -3.40282347e+38F;
-
-    public DoubleThresholdFilter() {
-        this.filter_additional_data = null;
-    }
-
-    public DoubleThresholdFilter(FilterAdditionalData filter_additional_data) {
-        this.filter_additional_data = filter_additional_data;
-    }
+public class DoubleThresholdFilter implements Filter{
 
     /**
-     * @param image    input image reference.
-     * @param newImage output image reference.
-     * @param start    first line to be processed from input image.
-     * @param stop     past last line to be processed from input image.
+     * @param in          input image reference.
+     * @param out         output image reference.
+     * @param PARALLELISM integer value denoting the number of task running in parallel.
      */
-    @Override
-    public void applyFilter(Image image, Image newImage, int start, int stop) throws BrokenBarrierException, InterruptedException {
-        ThreadSpecificDataT tData = (ThreadSpecificDataT) filter_additional_data;
+    public void applyFilter(Image in, Image out, final int PARALLELISM) {
+        CompletableFuture<Float>[] partialFilters = new CompletableFuture[PARALLELISM];
+        Pair<Integer, Integer>[] ranges = ImageUtils.getRange(PARALLELISM, in.height);
+        for (int i = 0; i < PARALLELISM; i++) {
+            int start = ranges[i].getFirst();
+            int stop = ranges[i].getSecond();
+            partialFilters[i] = CompletableFuture.supplyAsync(() -> applyFilterPh1(in, start, stop));
+        }
+        final Optional<Float> maxVal = Stream.of(partialFilters)
+                .map(CompletableFuture::join)
+                .max(Float::compareTo);
+        CompletableFuture<Void>[] partialFilters2 = new CompletableFuture[PARALLELISM];
+        for (int i = 0; i < PARALLELISM; i++) {
+            int start = ranges[i].getFirst();
+            int stop = ranges[i].getSecond();
 
+            partialFilters2[i] = CompletableFuture.runAsync(
+                    () -> applyFilterPh2(in, out, start, stop, maxVal.get()));
+        }
+        CompletableFuture.allOf(partialFilters2).join();
+    }
+
+    public float applyFilterPh1(Image image, int start, int stop) {
         float threadMaxVal = -3.40282347e+38F;
         for (int i = start; i < stop; ++i) {
             for (int j = 1; j < image.width - 1; ++j) {
                 threadMaxVal = (threadMaxVal < image.matrix[i][j].r) ? image.matrix[i][j].r : threadMaxVal;
             }
         }
+        return threadMaxVal;
+    }
 
-        // Compare and set to get the maximum value
-        synchronized (tData.mutex) {
-            maxVal = Math.max(maxVal, threadMaxVal);
-        }
-        tData.barrier.await();
-
+    public void applyFilterPh2(Image image, Image newImage, int start, int stop, float maxVal) {
         float thresholdHigh = 0.06f;
         float high = maxVal * thresholdHigh;
         float thresholdLow = 0.05f;

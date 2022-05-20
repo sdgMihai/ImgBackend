@@ -2,67 +2,53 @@ package com.img.imgbackend.filter;
 
 
 import com.img.imgbackend.utils.Image;
+import com.img.imgbackend.utils.ImageUtils;
 import com.img.imgbackend.utils.Pixel;
-import com.img.imgbackend.utils.ThreadSpecificDataT;
+import org.springframework.data.util.Pair;
 
-import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CompletableFuture;
 
-public class CannyEdgeDetectionFilter extends Filter {
-    private static float[][] auxTheta;
+public class CannyEdgeDetectionFilter implements Filter {
 
-    public CannyEdgeDetectionFilter() {
-        this.filter_additional_data = null;
-    }
-    public CannyEdgeDetectionFilter(FilterAdditionalData filter_additional_data) {
-        this.filter_additional_data = filter_additional_data;
-    }
     /**
-     * @param image    input image reference.
-     * @param newImage output image reference.
-     * @param start    first line to be processed from input image.
-     * @param stop     past last line to be processed from input image.
+     * @param image       input image reference.
+     * @param newImage    output image reference.
+     * @param PARALLELISM the async futures that can run in parallel
      */
     @Override
-    public void applyFilter(Image image, Image newImage, int start, int stop) throws BrokenBarrierException, InterruptedException {
-        ThreadSpecificDataT tData = (ThreadSpecificDataT) filter_additional_data;
-
-        for (int i = start; i < stop; ++i) {
-            for (int j = 0; j < image.width - 1; ++j) {
-                int gray = (int) (0.2126 * image.matrix[i][j].r +
-                        0.7152 * image.matrix[i][j].g +
-                        0.0722 * image.matrix[i][j].b);
-                gray = Math.min(gray, 255);
-                newImage.matrix[i][j] = new Pixel((char) gray, (char) gray, (char) gray, image.matrix[i][j].a);
-            }
-        }
+    public void applyFilter(Image image, Image newImage, int PARALLELISM) {
 
         BlackWhiteFilter step1 = new BlackWhiteFilter();
-        step1.applyFilter(image, newImage, 0, image.height - 1);
-        tData.barrier.await();
+        step1.applyFilter(image, newImage, PARALLELISM);
 
         GaussianBlurFilter step2 = new GaussianBlurFilter();
-        step2.applyFilter(newImage, image, 1, newImage.height - 1);
-        tData.barrier.await();
+        step2.applyFilter(newImage, image, PARALLELISM);
+        GradientFilter step3 = new GradientFilter();
+        step3.applyFilter(image, newImage, 1);
+        float[][] auxTheta = step3.theta;
 
-        GradientFilter step3 = new GradientFilter(tData);
-        step3.applyFilter(image, newImage, 1, newImage.height - 1);
-        if (tData.threadID == 0) {
-            auxTheta = step3.theta;
-        }
-        tData.barrier.await();
+        NonMaximumSuppressionFilter step4 = new NonMaximumSuppressionFilter(auxTheta, step3.thetaHeight, step3.thetaWidth);
+        step4.applyFilter(newImage, image, PARALLELISM);
 
-        NonMaximumSuppressionFilter step4 = new NonMaximumSuppressionFilter(auxTheta, step3.thetaHeight, step3.thetaWidth, tData);
-        step4.applyFilter(newImage, image, 1, newImage.height - 1);
-        tData.barrier.await();
-
-        DoubleThresholdFilter step5 = new DoubleThresholdFilter(tData);
-        step5.applyFilter(image, newImage, 1, newImage.height - 1);
-        tData.barrier.await();
+        DoubleThresholdFilter step5 = new DoubleThresholdFilter();
+        step5.applyFilter(image, newImage, PARALLELISM);
 
         EdgeTrackingFilter step6 = new EdgeTrackingFilter();
-        step6.applyFilter(newImage, image, 1, newImage.height - 1);
-        tData.barrier.await();
+        step6.applyFilter(newImage, image, PARALLELISM);
 
+        Pair<Integer, Integer>[] ranges = ImageUtils.getRange(PARALLELISM, image.height);
+        CompletableFuture<Void>[] partialFilters2 = new CompletableFuture[PARALLELISM];
+        for (int i = 0; i < PARALLELISM; i++) {
+            int start = ranges[i].getFirst();
+            int stop = ranges[i].getSecond();
+
+            partialFilters2[i] = CompletableFuture.runAsync(
+                    () -> applyFilterPh1(image, newImage, start, stop));
+        }
+        CompletableFuture.allOf(partialFilters2).join();
+    }
+
+    public void applyFilterPh1(Image image, Image newImage, int start, int stop) {
         for (int i = start; i < stop; ++i) {
             final Pixel[] swp = image.matrix[i];
             image.matrix[i] = newImage.matrix[i];
