@@ -4,11 +4,7 @@ import com.img.imgbackend.utils.Image;
 import com.img.imgbackend.utils.Pixel;
 
 
-public class EdgeTrackingFilter extends Filter {
-
-    public EdgeTrackingFilter() {
-        this.filter_additional_data = null;
-    }
+public class EdgeTrackingFilter extends AbstractFilter {
 
     /**
      * @param image    input image reference.
@@ -16,8 +12,7 @@ public class EdgeTrackingFilter extends Filter {
      * @param start    first line to be processed from input image.
      * @param stop     past last line to be processed from input image.
      */
-    @Override
-    public void applyFilter(Image image, Image newImage, int start, int stop) {
+    public void applyFilterPh1(Image image, Image newImage, int start, int stop) {
         final int weak = 100;
         final int strong = 255;
 
@@ -25,7 +20,7 @@ public class EdgeTrackingFilter extends Filter {
             for (int j = 1; j < image.width - 1; ++j) {
                 if (image.matrix[i][j].r == weak) {
                     if (image.matrix[i - 1][j - 1].r == strong || image.matrix[i - 1][j].r == strong ||
-                            image.matrix[i - 1][j + 1].r  == strong || image.matrix[i][j - 1].r == strong ||
+                            image.matrix[i - 1][j + 1].r == strong || image.matrix[i][j - 1].r == strong ||
                             image.matrix[i][j + 1].r == strong || image.matrix[i + 1][j - 1].r == strong ||
                             image.matrix[i + 1][j].r == strong || image.matrix[i + 1][j + 1].r == strong) {
 
