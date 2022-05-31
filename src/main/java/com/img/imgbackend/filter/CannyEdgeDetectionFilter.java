@@ -4,9 +4,7 @@ package com.img.imgbackend.filter;
 import com.img.imgbackend.utils.Image;
 import com.img.imgbackend.utils.Pixel;
 import com.img.imgbackend.utils.ThreadSpecificDataT;
-import org.springframework.beans.factory.annotation.Value;
 
-import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
 
 public class CannyEdgeDetectionFilter extends Filter {
@@ -30,23 +28,6 @@ public class CannyEdgeDetectionFilter extends Filter {
     @Override
     public void applyFilter(Image image, Image newImage) throws BrokenBarrierException, InterruptedException {
         ThreadSpecificDataT tData = (ThreadSpecificDataT) filter_additional_data;
-        int slice = (image.height - 2) / tData.NUM_THREADS;//imaginea va avea un rand de pixeli deasupra si unul dedesubt
-        //de aici '-2' din ecuatie
-        int start = Math.max(1, tData.threadID * slice);
-        int stop = (tData.threadID + 1) * slice;
-        if (tData.threadID + 1 == tData.NUM_THREADS) {
-            stop = Math.max((tData.threadID + 1) * slice, image.height - 1);
-        }
-
-        for (int i = start; i < stop; ++i) {
-            for (int j = 0; j < image.width - 1; ++j) {
-                int gray = (int) (0.2126 * image.matrix[i][j].r +
-                        0.7152 * image.matrix[i][j].g +
-                        0.0722 * image.matrix[i][j].b);
-                gray = Math.min(gray, 255);
-                newImage.matrix[i][j] = new Pixel((char) gray, (char) gray, (char) gray, image.matrix[i][j].a);
-            }
-        }
 
         BlackWhiteFilter step1 = new BlackWhiteFilter(tData);
         step1.applyFilter(image, newImage);
@@ -74,6 +55,14 @@ public class CannyEdgeDetectionFilter extends Filter {
         EdgeTrackingFilter step6 = new EdgeTrackingFilter(tData);
         step6.applyFilter(newImage, image);
         tData.barrier.await();
+
+        int slice = (image.height - 2) / tData.NUM_THREADS;//imaginea va avea un rand de pixeli deasupra si unul dedesubt
+        //de aici '-2' din ecuatie
+        int start = Math.max(1, tData.threadID * slice);
+        int stop = (tData.threadID + 1) * slice;
+        if (tData.threadID + 1 == tData.NUM_THREADS) {
+            stop = Math.max((tData.threadID + 1) * slice, image.height - 1);
+        }
 
         for (int i = start; i < stop; ++i) {
             final Pixel[] swp = image.matrix[i];
