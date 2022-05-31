@@ -11,9 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 public class ImgSrv {
@@ -89,32 +86,17 @@ public class ImgSrv {
                     e.printStackTrace();
                 }
 
-                data.getBarrier().await();
+                try {
+                    data.getBarrier().await();
+                } catch (InterruptedException | BrokenBarrierException e) {
+                    e.printStackTrace();
+                }
 
                 log.debug("passed in thread " + data.getThread_id() + "the barrier\n");
 
-                // this piece of code isn't actually tested yet
-                // TODO: upon testing rm this comment
-                if (i == (data.getNrFilters() - 1)) {
-                    if (data.getNrFilters() % 2 == 0) {
-                        int slice = (data.getImage().height - 2) / NUM_THREADS;
-                        int start = Math.max(1, data.getThread_id() * slice);
-                        int stop = (data.getThread_id() + 1) * slice;
-                        if(data.getThread_id() + 1 == NUM_THREADS) {
-                            stop = Math.max((data.getThread_id() + 1) * slice, data.getImage().height - 1);
-                        }
-                        for (int j = start; j  < stop; ++j) {
-                            Pixel[] swp = data.getImage().matrix[i];
-                            data.getImage().matrix[i] = data.getNewImage().matrix[i];
-                            data.getNewImage().matrix[i] = swp;
-                        }
-                    }
-                    break;
-                }
-
-                Image aux = data.getImage();
-                data.setImage(data.getNewImage());
-                data.setNewImage(aux);
+                Pixel[][] aux = data.getImage().matrix;
+                data.getImage().matrix = data.getNewImage().matrix;
+                data.getNewImage().matrix = aux;
             }
         }
     }
