@@ -16,4 +16,5 @@ public class ThreadSpecificData {
     int nrFilters;
     int NUM_THREADS;
     List<String> filters;
+    DataInit dataInit;
 }

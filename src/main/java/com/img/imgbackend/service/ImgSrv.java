@@ -18,9 +18,37 @@ public class ImgSrv {
     @Value("${NUM_THREADS}")
     Integer NUM_THREADS;
 
+    public Image process(Image image, List<String> filter) {
+        assert (NUM_THREADS == 4);
+        List<Thread> threads = new ArrayList<>(NUM_THREADS);
+        List<ThreadSpecificData> specificDataList = new ArrayList<>(NUM_THREADS);
+        Barrier barrier = new Barrier(NUM_THREADS);
+        Object lock = new Object();
+        DataInit dataInit = new DataInit();
+
+        Image newImage = new Image(image.width - 2, image.height - 2);
+
+        for (int i = 0; i < NUM_THREADS; i++)
+            specificDataList.add(new ThreadSpecificData(i, barrier, lock, image, newImage, filter.size(), NUM_THREADS, filter, dataInit));
+
+        for (int i = 0; i < NUM_THREADS; i++) {
+            threads.add(new SubImageFilter(specificDataList.get(i)));
+            threads.get(i).start();
+        }
+
+        for (int i = 0; i < NUM_THREADS; i++) {
+            try {
+                threads.get(i).join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        return newImage;
+    }
+
     public class SubImageFilter extends Thread {
-        ThreadSpecificData data;
         private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SubImageFilter.class);
+        ThreadSpecificData data;
 
         public SubImageFilter(ThreadSpecificData threadSpecificData) {
             this.data = threadSpecificData;
@@ -33,7 +61,7 @@ public class ImgSrv {
                 log.debug(String.format("applying %d filters", data.getNrFilters()));
             }
             for (int i = 0; i < data.getNrFilters(); ++i) {
-                String filterName  = data.getFilters().get(i);
+                String filterName = data.getFilters().get(i);
                 if (data.getThread_id() == 0) {
                     log.debug("filter " + filterName + " executes");
                 }
@@ -52,32 +80,35 @@ public class ImgSrv {
                             , new ThreadSpecificDataT(data.getThread_id()
                                     , data.getBarrier()
                                     , data.getLock()
-                                    , data.getNUM_THREADS()));
+                                    , data.getNUM_THREADS()
+                                    , data.getDataInit()));
                 } else if (filterName.toLowerCase(Locale.ROOT)
                         .equals(Filters.CONTRAST.toString().toLowerCase(Locale.ROOT))) {
 
-                        param = Double.parseDouble(data.getFilters().get(++i));
-                        log.debug(String.format("using level %f", param));
+                    param = Double.parseDouble(data.getFilters().get(++i));
+                    log.debug(String.format("using level %f", param));
 
-                        filter = FilterFactory.filterCreate(filterName
-                                , (float) param
-                                , null
-                                , 0
-                                ,0
-                                , new ThreadSpecificDataT(data.getThread_id()
-                                        , data.getBarrier()
-                                        , data.getLock()
-                                        , data.getNUM_THREADS()));
+                    filter = FilterFactory.filterCreate(filterName
+                            , (float) param
+                            , null
+                            , 0
+                            , 0
+                            , new ThreadSpecificDataT(data.getThread_id()
+                                    , data.getBarrier()
+                                    , data.getLock()
+                                    , data.getNUM_THREADS()
+                                    , data.getDataInit()));
                 } else {
                     filter = FilterFactory.filterCreate(filterName
                             , 0.0f
                             , null
                             , 0
-                            ,0
+                            , 0
                             , new ThreadSpecificDataT(data.getThread_id()
                                     , data.getBarrier()
                                     , data.getLock()
-                                    , data.getNUM_THREADS()));
+                                    , data.getNUM_THREADS()
+                                    , data.getDataInit()));
                 }
 
                 try {
@@ -99,34 +130,6 @@ public class ImgSrv {
                 data.getNewImage().matrix = aux;
             }
         }
-    }
-
-
-    public Image process(Image image, List<String> filter) {
-        assert (NUM_THREADS == 4);
-        List<Thread> threads = new ArrayList<>(NUM_THREADS);
-        List<ThreadSpecificData> specificDataList = new ArrayList<>(NUM_THREADS);
-        Barrier barrier = new Barrier(NUM_THREADS);
-        Object lock = new Object();
-
-        Image newImage = new Image(image.width - 2, image.height - 2);
-
-        for (int i = 0; i < NUM_THREADS; i++)
-            specificDataList.add(new ThreadSpecificData(i, barrier, lock, image, newImage, filter.size(), NUM_THREADS, filter));
-
-        for (int i = 0; i < NUM_THREADS; i++) {
-            threads.add(new SubImageFilter(specificDataList.get(i)));
-            threads.get(i).start();
-        }
-
-        for (int i = 0; i < NUM_THREADS; i++) {
-            try {
-                threads.get(i).join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        return newImage;
     }
 
 }

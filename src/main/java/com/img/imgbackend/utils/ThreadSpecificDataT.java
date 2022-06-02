@@ -10,4 +10,5 @@ public class ThreadSpecificDataT implements FilterAdditionalData {
     public Barrier barrier;
     public final Object mutex;
     public int NUM_THREADS;
+    public DataInit dataInit;
 }

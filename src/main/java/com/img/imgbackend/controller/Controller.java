@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -86,7 +87,7 @@ public class Controller {
     public ResponseEntity<ImageUploadResponse> uploadImage(MultipartHttpServletRequest request) throws IOException {
         imgID++;
         Iterator<String> itr = request.getFileNames();
-        MultipartFile file = null;
+        MultipartFile file;
         ImgBin imgBin = null;
 
         if (itr.hasNext()) {
@@ -100,10 +101,13 @@ public class Controller {
         }
 
         final String filter = request.getParameter("filter");
-        System.out.println(filter);
 
         assert imgBin != null;
-        ImageUploadResponse res = new ImageUploadResponse(imageRepository.findById(imgBin.id()).get().id());
+
+        final Optional<ImgBin> resImgBin = imageRepository.findById(imgBin.id());
+        ImageUploadResponse res = null;
+        if (resImgBin.isPresent())
+            res = new ImageUploadResponse(resImgBin.get().id());
         return ResponseEntity.ok(res);
     }
 

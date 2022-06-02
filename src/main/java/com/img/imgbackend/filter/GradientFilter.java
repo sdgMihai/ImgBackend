@@ -1,13 +1,13 @@
 package com.img.imgbackend.filter;
 
-import com.img.imgbackend.utils.Image;
-import com.img.imgbackend.utils.Pixel;
-import com.img.imgbackend.utils.ThreadSpecificDataT;
+import com.img.imgbackend.utils.*;
 
 import java.util.concurrent.BrokenBarrierException;
 
 public class GradientFilter extends Filter {
     public float[][] theta; /* place to save theta calculation */
+    public float[][] Ix;
+    public float[][]  Iy;
     public int thetaHeight;
     public int thetaWidth;
     private static final float[][] Gx = new float[][]{{-1, 0, 1},
@@ -19,8 +19,6 @@ public class GradientFilter extends Filter {
             {-1, -2, -1}};
 
     private static volatile float gMax = -3.40282347e+38F;
-    private static float[][] Ix, Iy, auxTheta;
-
 
     public GradientFilter() {
         this.filter_additional_data = null;
@@ -39,6 +37,7 @@ public class GradientFilter extends Filter {
     @Override
     public void applyFilter(Image image, Image newImage) throws BrokenBarrierException, InterruptedException {
         ThreadSpecificDataT tData = (ThreadSpecificDataT) filter_additional_data;
+        DataInit dataInit = tData.dataInit;
         int slice = (image.height - 2) / tData.NUM_THREADS;//imaginea va avea un rand de pixeli deasupra si unul dedesubt
         //de aici '-2' din ecuatie
         int start = Math.max(1, tData.threadID * slice);
@@ -47,28 +46,36 @@ public class GradientFilter extends Filter {
             stop = Math.max((tData.threadID + 1) * slice, image.height - 1);
         }
 
-        if (tData.threadID == 0) {
-            Ix = new float[image.height][];
-            Iy = new float[image.height][];
-            auxTheta = new float[image.height][];
-
-            for (int i = 0; i < image.height; ++i) {
-                Ix[i] = new float[image.width];
-                Iy[i] = new float[image.width];
-                auxTheta[i] = new float[image.width];
-            }
-        }
         this.thetaHeight = image.height;
         this.thetaWidth = image.width;
+        if (tData.threadID == 0) {
+//            Ix = new float[image.height][];
+//            Iy = new float[image.height][];
+//            auxTheta = new float[image.height][];
+//
+//            for (int i = 0; i < image.height; ++i) {
+//                Ix[i] = new float[image.width];
+//                Iy[i] = new float[image.width];
+//                auxTheta[i] = new float[image.width];
+//            }
+            dataInit.producerGradient(image.height, image.width, tData.NUM_THREADS);
 
-        tData.barrier.await();
-        this.theta = auxTheta;
-        tData.barrier.await();
+        }
+        final GradientData gradientData = dataInit.consumerGradient();
+        this.Ix = gradientData.Ix;
+        this.Iy = gradientData.Iy;
+        this.theta = gradientData.theta;
+
+
+
+//        tData.barrier.await();
+//        this.theta = auxTheta;
+//        tData.barrier.await();
+
 
 
         // prioritize gc to deallocate auxTheta
-        // TODO: check if it actually works
-        System.gc();
+//        System.gc();
 
         // 1. Se aplica kernelul Gx pe imagine si se obtine Ix
         for (int i = start; i < stop; ++i) {
@@ -135,7 +142,6 @@ public class GradientFilter extends Filter {
         tData.barrier.await();
 
         // deallocate Ix &Iy
-        // TODO: check if it actually works
-        System.gc();
+//        System.gc();
     }
 }

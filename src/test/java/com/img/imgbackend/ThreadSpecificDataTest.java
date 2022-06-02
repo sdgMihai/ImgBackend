@@ -1,6 +1,7 @@
 package com.img.imgbackend;
 
 import com.img.imgbackend.utils.Barrier;
+import com.img.imgbackend.utils.DataInit;
 import com.img.imgbackend.utils.Image;
 import com.img.imgbackend.utils.ThreadSpecificData;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,7 @@ public class ThreadSpecificDataTest {
         int nrFilters = 1;
         int NUM_THREADS = 1;
         List<String> filterList = new ArrayList<>();
+        DataInit dataInit = new DataInit();
         ThreadSpecificData capsule = new ThreadSpecificData(threadID
                 , cyclicBarrier
                 , lock
@@ -31,6 +33,7 @@ public class ThreadSpecificDataTest {
                 , nrFilters
                 , NUM_THREADS
                 , filterList
+                , dataInit
         );
         assertEquals (threadID, capsule.getThread_id());
         assertEquals(cyclicBarrier, capsule.getBarrier());
@@ -40,5 +43,6 @@ public class ThreadSpecificDataTest {
         assertEquals(nrFilters, capsule.getNrFilters());
         assertEquals(NUM_THREADS, capsule.getNUM_THREADS());
         assertEquals(filterList, capsule.getFilters());
+        assertEquals(dataInit, capsule.getDataInit());
     }
 }
