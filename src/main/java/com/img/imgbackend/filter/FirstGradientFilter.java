@@ -4,10 +4,7 @@ import com.img.imgbackend.utils.Image;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class FirstGradientFilter {
-    public final float[][] theta; /* place to save theta calculation */
-    public final float[][] ix;
-    public final float[][] iy;
+public record FirstGradientFilter(float[][] theta, float[][] ix, float[][] iy) {
     private static final float[][] Gx = new float[][]{{-1, 0, 1},
             {-2, 0, 2},
             {-1, 0, 1}};
@@ -15,12 +12,6 @@ public class FirstGradientFilter {
     private static final float[][] Gy = new float[][]{{1, 2, 1},
             {0, 0, 0},
             {-1, -2, -1}};
-
-    public FirstGradientFilter(float[][] theta, float[][] ix, float[][] iy) {
-        this.theta = theta;
-        this.ix = ix;
-        this.iy = iy;
-    }
 
     public Double applyFilter(Image image, int start, int stop) {
 
@@ -58,14 +49,14 @@ public class FirstGradientFilter {
         for (int i = start; i < stop; ++i) {
             for (int j = 1; j < image.width - 1; ++j) {
                 float gray;
-                gray = (float)Math.sqrt(ix[i][j] * ix[i][j] + iy[i][j] * iy[i][j]);
+                gray = (float) Math.sqrt(ix[i][j] * ix[i][j] + iy[i][j] * iy[i][j]);
                 if (threadgMax < gray) {
                     threadgMax = gray;
                 }
                 this.theta[i][j] = (float) (Math.atan2(iy[i][j], ix[i][j]) * 180 / Math.PI);
                 ix[i][j] = gray;
                 if (this.theta[i][j] < 0) {
-                    this.theta[i][j] =  this.theta[i][j] + 180;
+                    this.theta[i][j] = this.theta[i][j] + 180;
                 }
             }
         }
