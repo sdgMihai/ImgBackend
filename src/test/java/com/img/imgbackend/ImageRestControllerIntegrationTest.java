@@ -13,17 +13,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.util.Optional;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -51,17 +48,6 @@ public class ImageRestControllerIntegrationTest {
     }
 
     @Test
-    public void givenOneImageExpectDownload()
-            throws Exception {
-
-        mvc.perform(post("/api/downloadImage/1")
-                        .contentType(MediaType.IMAGE_PNG_VALUE))
-                .andExpect(status().isOk())
-                .andExpect(content()
-                        .contentTypeCompatibleWith(MediaType.IMAGE_PNG_VALUE));
-    }
-
-    @Test
     public void upload() throws Exception {
         File imageFile = new ClassPathResource("Efficiency.png").getFile();
         log.debug(imageFile.toPath());
@@ -69,6 +55,9 @@ public class ImageRestControllerIntegrationTest {
         final MockPart image = new MockPart("Efficiency.png", "Efficiency.png","image/gif", imageBytes);
 
         mvc.perform(
-                fileUpload("/api/uploadImage").file(image)).andExpect(status().isOk());
+                MockMvcRequestBuilders.multipart("/api/filter")
+                        .file(image)
+                        .param("filter", "black-white"))
+                .andExpect(status().isOk());
     }
 }
