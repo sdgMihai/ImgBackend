@@ -4,6 +4,7 @@ import com.img.imgbackend.filter.Filters;
 import com.img.imgbackend.repository.ImageFormatIO;
 import com.img.imgbackend.service.FilterService;
 import com.img.imgbackend.service.ImgSrv;
+import com.img.imgbackend.utils.GradientData;
 import com.img.imgbackend.utils.Image;
 import com.img.imgbackend.utils.ThreadSpecificData;
 import lombok.extern.slf4j.Slf4j;
@@ -63,9 +64,10 @@ public class PerformanceTest {
         String[] filterNames = new String[]{Filters.CANNY_EDGE_DETECTION.toString()};
 
         final CyclicBarrier barrier = new CyclicBarrier(NUM_THREADS);
+        final GradientData gData = new GradientData(input.height, input.width, NUM_THREADS);
         List<ThreadSpecificData> specificDataList = new ArrayList<>(NUM_THREADS);
         for (int i = 0; i < NUM_THREADS; i++)
-            specificDataList.add(new ThreadSpecificData(i, barrier, input, output, filterNames.length, NUM_THREADS, filterNames));
+            specificDataList.add(new ThreadSpecificData(i, barrier, input, output, filterNames.length, NUM_THREADS, filterNames, gData));
 
         ImgSrv imgSrv = new ImgSrv();
 

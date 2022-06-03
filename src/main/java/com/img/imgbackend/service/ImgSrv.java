@@ -1,10 +1,7 @@
 package com.img.imgbackend.service;
 
 import com.img.imgbackend.filter.Filter;
-import com.img.imgbackend.utils.Image;
-import com.img.imgbackend.utils.ImageUtils;
-import com.img.imgbackend.utils.ThreadSpecificData;
-import com.img.imgbackend.utils.ThreadSpecificDataT;
+import com.img.imgbackend.utils.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -25,12 +22,13 @@ public class ImgSrv {
         List<Callable<Object>> threads = new ArrayList<>(NUM_THREADS);
         List<ThreadSpecificData> specificDataList = new ArrayList<>(NUM_THREADS);
         CyclicBarrier barrier = new CyclicBarrier(NUM_THREADS);
+        GradientData gradientData = new GradientData(image.height, image.width, NUM_THREADS);
         ExecutorService executor = Executors.newFixedThreadPool(NUM_THREADS);
 
         Image newImage = new Image(image.width - 2, image.height - 2);
 
         for (int i = 0; i < NUM_THREADS; i++)
-            specificDataList.add(new ThreadSpecificData(i, barrier, image, newImage, filterNames.length, NUM_THREADS, filterNames));
+            specificDataList.add(new ThreadSpecificData(i, barrier, image, newImage, filterNames.length, NUM_THREADS, filterNames, gradientData));
 
         for (int i = 0; i < NUM_THREADS; i++) {
             threads.add(

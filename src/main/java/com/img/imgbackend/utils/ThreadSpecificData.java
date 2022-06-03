@@ -15,4 +15,5 @@ public class ThreadSpecificData {
     int nrFilters;
     int NUM_THREADS;
     String[] filters;
+    GradientData gData;
 }

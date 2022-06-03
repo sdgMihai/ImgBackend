@@ -1,26 +1,20 @@
 package com.img.imgbackend;
 
 import com.img.imgbackend.filter.*;
-import com.img.imgbackend.model.ImgBin;
 import com.img.imgbackend.repository.ImageFormatIO;
-import com.img.imgbackend.repository.ImageRepository;
+import com.img.imgbackend.utils.GradientData;
 import com.img.imgbackend.utils.Image;
 import com.img.imgbackend.utils.ThreadSpecificDataT;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.bson.types.Binary;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -29,11 +23,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -49,47 +40,39 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         }
 )
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@AutoConfigureMockMvc
 public class TestFilter {
 
-    @Autowired
-    private MockMvc mvc;
-
-    @MockBean
-    private ImageRepository repository;
-
+    private static final Logger log = LogManager.getLogger(TestFilter.class);
+    FilterAdditionalData addData;
     @Autowired
     private ImageFormatIO imageFormatIO;
-
     private CyclicBarrier cyclicBarrier;
-
     private int NUM_THREADS;
-
-    private static final Logger log = LogManager.getLogger(TestFilter.class);
+    private GradientData gData;
+    private Image input;
+    private Image output;
 
     @BeforeEach
     public void init() throws IOException {
         // provide image as input for tests
         File imageFile = new ClassPathResource("Efficiency.png").getFile();
         byte[] image = Files.readAllBytes(imageFile.toPath());
-        ImgBin imgBinOne = new ImgBin("1", new Binary(image));
-        Mockito.when(repository.findById("1"))
-                .thenReturn(Optional.of(imgBinOne));
+        assert (image.length != 0);
+        BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(image));
+
+        input = imageFormatIO.bufferedToModelImage(bufferedImage);
+        output = new Image(input.width - 2, input.height - 2);
 
         NUM_THREADS = 1;
         cyclicBarrier = new CyclicBarrier(NUM_THREADS);
 
+        gData = new GradientData(input.height, input.width, NUM_THREADS);
+        addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS, gData);
     }
 
     @Test
-    public void testBlackWhiteFilter() throws IOException {
-        byte[] image = repository.findById("1").get().binary().getData();
-        assert (image.length != 0);
-        BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(image));
-
-        final Image input = imageFormatIO.bufferedToModelImage(bufferedImage);
-        final Image output = new Image(input.width - 2, input.height - 2);
-        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS);
+    public void testBlackWhiteFilter() {
+        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS, gData);
         BlackWhiteFilter blackWhiteFilter = new BlackWhiteFilter(addData);
 
         blackWhiteFilter.applyFilter(input, output);
@@ -105,16 +88,8 @@ public class TestFilter {
 
     @Test
     public void testSepia() throws IOException {
-        // read input image
-        byte[] image = repository.findById("1").get().binary().getData();
-        assert (image.length != 0);
-        BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(image));
-
-        final Image input = imageFormatIO.bufferedToModelImage(bufferedImage);
-        final Image output = new Image(input.width - 2, input.height - 2);
 
         // create additional data and filter
-        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS);
         SepiaFilter sepiaFilter = new SepiaFilter(addData);
 
         sepiaFilter.applyFilter(input, output);
@@ -123,23 +98,16 @@ public class TestFilter {
         File sepiaFile = new ClassPathResource("response.png").getFile();
         byte[] sepiaImage = Files.readAllBytes(sepiaFile.toPath());
         BufferedImage bufferedSepia = ImageIO.read(new ByteArrayInputStream(sepiaImage));
-        final Image sepiaRes = imageFormatIO.bufferedToModelImage(bufferedImage);
+        final Image sepiaRes = imageFormatIO.bufferedToModelImage(bufferedSepia);
 
         assertEquals(sepiaRes.width, output.width);
         assertEquals(sepiaRes.height, output.height);
     }
 
     @Test
-    public void testDummyFilter() throws IOException {
-        byte[] image = repository.findById("1").get().binary().getData();
-        assert (image.length != 0);
-        BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(image));
-
-        final Image input = imageFormatIO.bufferedToModelImage(bufferedImage);
-        final Image output = new Image(input.width - 2, input.height - 2);
-
+    public void testDummyFilter() {
         // create additional data and filter
-        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS);
+        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS, gData);
         DummyFilter dummyFilter = new DummyFilter(addData);
 
         dummyFilter.applyFilter(input, output);
@@ -149,16 +117,7 @@ public class TestFilter {
     }
 
     @Test
-    public void testBrightnessFilter() throws IOException {
-        byte[] image = repository.findById("1").get().binary().getData();
-        assert (image.length != 0);
-        BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(image));
-
-        final Image input = imageFormatIO.bufferedToModelImage(bufferedImage);
-        final Image output = new Image(input.width - 2, input.height - 2);
-
-        // create additional data and filter
-        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS);
+    public void testBrightnessFilter() {
         BrightnessFilter dummyFilter = new BrightnessFilter(0.2f, addData);
 
         dummyFilter.applyFilter(input, output);
@@ -168,16 +127,7 @@ public class TestFilter {
     }
 
     @Test
-    public void testCannyEdgeDetectionFilter() throws IOException {
-        byte[] image = repository.findById("1").get().binary().getData();
-        assert (image.length != 0);
-        BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(image));
-
-        final Image input = imageFormatIO.bufferedToModelImage(bufferedImage);
-        final Image output = new Image(input.width - 2, input.height - 2);
-
-        // create additional data and filter
-        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS);
+    public void testCannyEdgeDetectionFilter() {
         CannyEdgeDetectionFilter cannyEdgeDetectionFilter = new CannyEdgeDetectionFilter(addData);
 
         try {
@@ -191,16 +141,7 @@ public class TestFilter {
     }
 
     @Test
-    public void testContrastFilter() throws IOException {
-        byte[] image = repository.findById("1").get().binary().getData();
-        assert (image.length != 0);
-        BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(image));
-
-        final Image input = imageFormatIO.bufferedToModelImage(bufferedImage);
-        final Image output = new Image(input.width - 2, input.height - 2);
-
-        // create additional data and filter
-        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS);
+    public void testContrastFilter() {
         ContrastFilter con = new ContrastFilter(0.1f, addData);
 
         con.applyFilter(input, output);
@@ -210,16 +151,7 @@ public class TestFilter {
     }
 
     @Test
-    public void testDoubleThresholdFilter() throws IOException {
-        byte[] image = repository.findById("1").get().binary().getData();
-        assert (image.length != 0);
-        BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(image));
-
-        final Image input = imageFormatIO.bufferedToModelImage(bufferedImage);
-        final Image output = new Image(input.width - 2, input.height - 2);
-
-        // create additional data and filter
-        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS);
+    public void testDoubleThresholdFilter() {
         DoubleThresholdFilter filter = new DoubleThresholdFilter(addData);
 
         try {
@@ -233,16 +165,7 @@ public class TestFilter {
     }
 
     @Test
-    public void testEdgeTrackingFilter() throws IOException {
-        byte[] image = repository.findById("1").get().binary().getData();
-        assert (image.length != 0);
-        BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(image));
-
-        final Image input = imageFormatIO.bufferedToModelImage(bufferedImage);
-        final Image output = new Image(input.width - 2, input.height - 2);
-
-        // create additional data and filter
-        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS);
+    public void testEdgeTrackingFilter() {
         EdgeTrackingFilter filter = new EdgeTrackingFilter(addData);
 
         filter.applyFilter(input, output);
@@ -252,16 +175,7 @@ public class TestFilter {
     }
 
     @Test
-    public void testEmbossFilter() throws IOException {
-        byte[] image = repository.findById("1").get().binary().getData();
-        assert (image.length != 0);
-        BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(image));
-
-        final Image input = imageFormatIO.bufferedToModelImage(bufferedImage);
-        final Image output = new Image(input.width - 2, input.height - 2);
-
-        // create additional data and filter
-        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS);
+    public void testEmbossFilter() {
         EmbossFilter embossFilter = new EmbossFilter(addData);
 
         embossFilter.applyFilter(input, output);
@@ -271,16 +185,7 @@ public class TestFilter {
     }
 
     @Test
-    public void testGaussianBlurFilter() throws IOException {
-        byte[] image = repository.findById("1").get().binary().getData();
-        assert (image.length != 0);
-        BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(image));
-
-        final Image input = imageFormatIO.bufferedToModelImage(bufferedImage);
-        final Image output = new Image(input.width - 2, input.height - 2);
-
-        // create additional data and filter
-        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS);
+    public void testGaussianBlurFilter() {
         GaussianBlurFilter filter = new GaussianBlurFilter(addData);
 
         filter.applyFilter(input, output);
@@ -290,16 +195,7 @@ public class TestFilter {
     }
 
     @Test
-    public void testGradientFilter() throws IOException {
-        byte[] image = repository.findById("1").get().binary().getData();
-        assert (image.length != 0);
-        BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(image));
-
-        final Image input = imageFormatIO.bufferedToModelImage(bufferedImage);
-        final Image output = new Image(input.width - 2, input.height - 2);
-
-        // create additional data and filter
-        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS);
+    public void testGradientFilter() {
         GradientFilter filter = new GradientFilter(addData);
 
         try {
@@ -313,16 +209,7 @@ public class TestFilter {
     }
 
     @Test
-    public void testNonMaFilter() throws IOException {
-        byte[] image = repository.findById("1").get().binary().getData();
-        assert (image.length != 0);
-        BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(image));
-
-        final Image input = imageFormatIO.bufferedToModelImage(bufferedImage);
-        final Image output = new Image(input.width - 2, input.height - 2);
-
-        // create additional data and filter + gradient filter, bc non-maximum needs the theta obtained from it
-        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS);
+    public void testNonMaFilter() {
         GradientFilter gradient = new GradientFilter(addData);
         try {
             gradient.applyFilter(input, output);
@@ -338,16 +225,7 @@ public class TestFilter {
     }
 
     @Test
-    public void testSharpenFilter() throws IOException {
-        byte[] image = repository.findById("1").get().binary().getData();
-        assert (image.length != 0);
-        BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(image));
-
-        final Image input = imageFormatIO.bufferedToModelImage(bufferedImage);
-        final Image output = new Image(input.width - 2, input.height - 2);
-
-        // create additional data and filter
-        FilterAdditionalData addData = new ThreadSpecificDataT(0, cyclicBarrier, NUM_THREADS);
+    public void testSharpenFilter() {
         SharpenFilter filter = new SharpenFilter(addData);
 
         filter.applyFilter(input, output);

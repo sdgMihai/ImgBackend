@@ -18,7 +18,7 @@ public class FilterService {
     }
 
     /**
-    Transform filter names and parameters to list of filters.
+     * Transform filter names and parameters to list of filters.
      */
     public static List<Filter> getFilters(String[] filterNames
             , String[] filterParams
@@ -45,7 +45,8 @@ public class FilterService {
                         , 0
                         , new ThreadSpecificDataT(data.getThread_id()
                                 , data.getBarrier()
-                                , data.getNUM_THREADS())));
+                                , data.getNUM_THREADS()
+                                , data.getGData())));
             } else if (filterNameEquals(filterName, Filters.CONTRAST.toString())) {
                 double param = 0;
                 assert filterParamsIt != null;
@@ -58,19 +59,21 @@ public class FilterService {
                         , (float) param
                         , null
                         , 0
-                        ,0
+                        , 0
                         , new ThreadSpecificDataT(data.getThread_id()
                                 , data.getBarrier()
-                                , data.getNUM_THREADS())));
+                                , data.getNUM_THREADS()
+                                , data.getGData())));
             } else {
                 filters.add(FilterFactory.filterCreate(filterName
                         , 0.0f
                         , null
                         , 0
-                        ,0
+                        , 0
                         , new ThreadSpecificDataT(data.getThread_id()
                                 , data.getBarrier()
-                                , data.getNUM_THREADS())));
+                                , data.getNUM_THREADS()
+                                , data.getGData())));
             }
         }
         return filters;
