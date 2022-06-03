@@ -22,7 +22,7 @@ import java.util.Iterator;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/")
+@RequestMapping("/api")
 public class Controller {
     private final ImageRepository imageRepository;
     private final ImgSrv imgSrv;
