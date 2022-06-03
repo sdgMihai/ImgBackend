@@ -1,7 +1,9 @@
 package com.img.imgbackend.utils;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import static java.lang.Float.*;
+
+import static java.lang.Float.floatToIntBits;
+import static java.lang.Float.intBitsToFloat;
 
 public class AtomicFloat extends Number {
 
@@ -45,7 +47,7 @@ public class AtomicFloat extends Number {
                                       floatToIntBits(update));
     }
 
-    public double doubleValue() { return (double) floatValue(); }
+    public double doubleValue() { return floatValue(); }
     public int intValue()       { return (int) get();           }
     public long longValue()     { return (long) get();          }
 
