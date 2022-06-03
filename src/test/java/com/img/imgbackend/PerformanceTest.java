@@ -4,6 +4,7 @@ import com.img.imgbackend.filter.tasks.TaskFactory;
 import com.img.imgbackend.repository.ImageFormatIO;
 import com.img.imgbackend.utils.Image;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         }
 )
 @Slf4j
+@Disabled
 public class PerformanceTest {
     @Autowired
     private ImageFormatIO imageFormatIO;
