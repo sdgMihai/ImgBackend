@@ -24,7 +24,7 @@ public class CannyEdgeDetectionFilter implements Filter {
         GaussianBlurFilter step2 = new GaussianBlurFilter();
         step2.applyFilter(newImage, image, PARALLELISM);
         GradientFilter step3 = new GradientFilter();
-        step3.applyFilter(image, newImage, 1);
+        step3.applyFilter(image, newImage, PARALLELISM);
         float[][] auxTheta = step3.theta;
 
         NonMaximumSuppressionFilter step4 = new NonMaximumSuppressionFilter(auxTheta, step3.thetaHeight, step3.thetaWidth);

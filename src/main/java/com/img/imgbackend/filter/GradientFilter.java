@@ -21,8 +21,8 @@ public class GradientFilter implements Filter {
             {0, 0, 0},
             {-1, -2, -1}};
 
-    private static float[][] Ix;
-    private static float[][] Iy;
+    private float[][] Ix;
+    private float[][] Iy;
 
     /**
      * @param in          input image reference.
@@ -33,19 +33,16 @@ public class GradientFilter implements Filter {
     public void applyFilter(Image in, Image out, final int PARALLELISM) {
         Ix = new float[in.height][];
         Iy = new float[in.height][];
-        float[][] auxTheta = new float[in.height][];
+        theta = new float[in.height][];
 
         for (int i = 0; i < in.height; ++i) {
             Ix[i] = new float[in.width];
             Iy[i] = new float[in.width];
-            auxTheta[i] = new float[in.width];
+            theta[i] = new float[in.width];
         }
-
 
         this.thetaHeight = in.height;
         this.thetaWidth = in.width;
-
-        this.theta = auxTheta;
 
         // ph1
         CompletableFuture<Float>[] partialFilters = new CompletableFuture[PARALLELISM];
