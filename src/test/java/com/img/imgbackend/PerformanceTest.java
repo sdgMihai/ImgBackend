@@ -8,9 +8,8 @@ import com.img.imgbackend.utils.GradientData;
 import com.img.imgbackend.utils.Image;
 import com.img.imgbackend.utils.ThreadSpecificData;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.openjdk.jmh.annotations.*;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -27,7 +26,10 @@ import java.util.concurrent.*;
 
 import static com.mongodb.assertions.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.openjdk.jmh.annotations.Scope.Benchmark;
 
+@State(Benchmark)
 @ExtendWith(SpringExtension.class)
 @Import(
         value = {
@@ -36,28 +38,39 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 )
 @Slf4j
 public class PerformanceTest {
-    @Autowired
-    private ImageFormatIO imageFormatIO;
+    private final ImageFormatIO imageFormatIO  = new ImageFormatIO();
 
     private static final int NUM_THREADS = 4;
+    Image input;
+    Image output;
+    Image result;
 
-    @Test
-    public void testCannyEdgeDetectionFilter() throws IOException {
-        log.debug("start canny performance test");
+    @Setup(Level.Invocation)
+    public void init() throws IOException {
         File inputFile = new ClassPathResource("noise.png").getFile();
         byte[] image = Files.readAllBytes(inputFile.toPath());
         assert (image.length != 0);
         BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(image));
-        final Image input = imageFormatIO.bufferedToModelImage(bufferedImage);
-        final Image output = new Image(input.width - 2, input.height - 2);
+        input = imageFormatIO.bufferedToModelImage(bufferedImage);
+        assertNotNull(input);
+        output = new Image(input.width - 2, input.height - 2);
+        assertNotNull(output);
 
         File outputResult = new ClassPathResource("respnoise.png").getFile();
         byte[] resultBytes = Files.readAllBytes(outputResult.toPath());
-        final Image result = imageFormatIO.bufferedToModelImage(
+        result = imageFormatIO.bufferedToModelImage(
                 ImageIO.read(new ByteArrayInputStream(
                         resultBytes
                 ))
         );
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.AverageTime)
+    @OutputTimeUnit(TimeUnit.MILLISECONDS)
+    @Warmup(iterations = 1)
+    @Measurement(iterations = 1)
+    public void testCannyEdgeDetectionFilter() {
 
         ExecutorService executor = Executors.newFixedThreadPool(NUM_THREADS);
         List<Callable<Object>> tasks = new ArrayList<>(NUM_THREADS);
@@ -96,10 +109,13 @@ public class PerformanceTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
 
+    @TearDown(Level.Invocation)
+    public void checkResult() {
         assertEquals(input.width, output.width);
         assertEquals(input.height, output.height);
-        assertEquals(result, output);
+//        assertEquals(result, output);
     }
 
 }
