@@ -16,8 +16,10 @@ import static com.mongodb.assertions.Assertions.assertTrue;
 public class ImgSrv {
     @Value("${NUM_THREADS}")
     Integer NUM_THREADS;
+    private final Semaphore semaphore = new Semaphore(10);
 
-    public Image process(Image image, String[] filterNames, String[] filterParams) {
+    public Image process(Image image, String[] filterNames, String[] filterParams) throws InterruptedException {
+        semaphore.acquire();
         assert (NUM_THREADS == 4);
         List<Callable<Object>> threads = new ArrayList<>(NUM_THREADS);
         List<ThreadSpecificData> specificDataList = new ArrayList<>(NUM_THREADS);
@@ -55,6 +57,7 @@ public class ImgSrv {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        semaphore.release();
         return newImage;
     }
 

@@ -58,7 +58,12 @@ public class Controller {
             final Image input = imageFormatIO.bufferedToModelImage(bufferedImage);
             final Image res;
 
-            res = imgSrv.process(input, filterNames, filterParams);
+            try {
+                res = imgSrv.process(input, filterNames, filterParams);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                return ResponseEntity.internalServerError().build();
+            }
 
             final BufferedImage image1 = imageFormatIO.modelToBufferedImage(res);
             final byte[] bytes = imageFormatIO.bufferedToByteArray(image1);
