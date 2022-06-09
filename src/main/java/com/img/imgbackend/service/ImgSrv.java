@@ -5,7 +5,6 @@ import com.img.imgbackend.utils.Image;
 import com.img.imgbackend.utils.ImageUtils;
 import com.img.imgbackend.utils.ThreadSpecificData;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,7 +30,6 @@ public class ImgSrv {
     @Value("${NUM_THREADS}")
     Integer PARALLELISM;
 
-    @Async
     public CompletableFuture<Image> process(Image image, String[] filterNames, String[] filterParams) {
         return CompletableFuture.supplyAsync(() -> {
             assert (PARALLELISM == 4);

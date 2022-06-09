@@ -12,4 +12,9 @@ public class ImgBackendApplication {
         SpringApplication.run(ImgBackendApplication.class, args);
     }
 
+//    @Bean(name = "threadPoolTaskExecutor")
+//    public Executor threadPoolTaskExecutor() {
+//        return new ThreadPoolTaskExecutor();
+//    }
+
 }
