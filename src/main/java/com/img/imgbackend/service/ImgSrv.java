@@ -2,6 +2,7 @@ package com.img.imgbackend.service;
 
 import com.img.imgbackend.filter.Filter;
 import com.img.imgbackend.utils.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -13,12 +14,14 @@ import java.util.concurrent.*;
 import static com.mongodb.assertions.Assertions.assertTrue;
 
 @Service
+@Slf4j
 public class ImgSrv {
     @Value("${NUM_THREADS}")
     Integer NUM_THREADS;
     private final Semaphore semaphore = new Semaphore(10);
 
     public Image process(Image image, String[] filterNames, String[] filterParams) throws InterruptedException {
+        log.info("aquire" + semaphore.availablePermits());
         semaphore.acquire();
         assert (NUM_THREADS == 4);
         List<Callable<Object>> threads = new ArrayList<>(NUM_THREADS);

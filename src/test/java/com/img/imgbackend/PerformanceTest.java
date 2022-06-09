@@ -8,6 +8,7 @@ import com.img.imgbackend.utils.GradientData;
 import com.img.imgbackend.utils.Image;
 import com.img.imgbackend.utils.ThreadSpecificData;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openjdk.jmh.annotations.*;
 import org.springframework.context.annotation.Import;
@@ -37,6 +38,7 @@ import static org.openjdk.jmh.annotations.Scope.Benchmark;
         }
 )
 @Slf4j
+@Disabled
 public class PerformanceTest {
     private final ImageFormatIO imageFormatIO  = new ImageFormatIO();
 
