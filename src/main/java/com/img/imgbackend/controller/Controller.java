@@ -1,5 +1,6 @@
 package com.img.imgbackend.controller;
 
+import com.google.common.util.concurrent.RateLimiter;
 import com.img.imgbackend.filter.Filters;
 import com.img.imgbackend.model.ImageUploadResponse;
 import com.img.imgbackend.model.ImgBin;
@@ -27,22 +28,24 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RestController
 @RequestMapping("/api/")
 public class Controller {
-//    private static final Logger log = LogManager.getLogger(Controller.class);
     private static int imgID = 0;
     private final ImageRepository imageRepository;
     private final ImgSrv imgSrv;
     private final ImageFormatIO imageFormatIO;
+    private final RateLimiter r;
 
     @Autowired
     public Controller(ImageRepository imageRepository, ImgSrv imgSrv, ImageFormatIO imageFormatIO) {
         this.imageRepository = imageRepository;
         this.imgSrv = imgSrv;
         this.imageFormatIO = imageFormatIO;
+        this.r = RateLimiter.create(3, 3, TimeUnit.SECONDS);
     }
 
     @PostMapping(value = "/filter", produces = MediaType.IMAGE_PNG_VALUE)
