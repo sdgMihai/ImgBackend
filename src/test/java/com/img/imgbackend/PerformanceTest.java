@@ -8,6 +8,8 @@ import com.img.imgbackend.utils.DataInit;
 import com.img.imgbackend.utils.Image;
 import com.img.imgbackend.utils.ThreadSpecificData;
 import lombok.extern.slf4j.Slf4j;
+
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         }
 )
 @Slf4j
+@Disabled
 public class PerformanceTest {
     @Autowired
     private ImageFormatIO imageFormatIO;

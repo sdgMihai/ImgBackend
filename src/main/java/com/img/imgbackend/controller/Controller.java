@@ -50,6 +50,7 @@ public class Controller {
 
     @PostMapping(value = "/filter", produces = MediaType.IMAGE_PNG_VALUE)
     public ResponseEntity<byte[]> filterImage(MultipartHttpServletRequest request) throws IOException {
+        r.acquire();
         Iterator<String> itr = request.getFileNames();
         MultipartFile file;
 
