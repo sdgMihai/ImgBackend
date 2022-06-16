@@ -1,5 +1,6 @@
 package com.img.imgbackend.controller;
 
+import com.google.common.util.concurrent.RateLimiter;
 import com.img.imgbackend.repository.ImageFormatIO;
 import com.img.imgbackend.repository.ImageRepository;
 import com.img.imgbackend.service.ImgSrv;
@@ -19,6 +20,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RestController
@@ -27,16 +29,19 @@ public class Controller {
     private final ImageRepository imageRepository;
     private final ImgSrv imgSrv;
     private final ImageFormatIO imageFormatIO;
+    private final RateLimiter r;
 
     @Autowired
     public Controller(ImageRepository imageRepository, ImgSrv imgSrv, ImageFormatIO imageFormatIO) {
         this.imageRepository = imageRepository;
         this.imgSrv = imgSrv;
         this.imageFormatIO = imageFormatIO;
+        this.r = RateLimiter.create(7, 10, TimeUnit.SECONDS);
     }
 
     @PostMapping(value = "/filter", produces = MediaType.IMAGE_PNG_VALUE)
     public ResponseEntity<byte[]> filterImage(MultipartHttpServletRequest request) throws IOException {
+        r.acquire();
         Iterator<String> itr = request.getFileNames();
         MultipartFile file;
 
