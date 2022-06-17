@@ -49,15 +49,6 @@ public class GradientFilter extends Filter {
         this.thetaHeight = image.height;
         this.thetaWidth = image.width;
         if (tData.threadID == 0) {
-//            Ix = new float[image.height][];
-//            Iy = new float[image.height][];
-//            auxTheta = new float[image.height][];
-//
-//            for (int i = 0; i < image.height; ++i) {
-//                Ix[i] = new float[image.width];
-//                Iy[i] = new float[image.width];
-//                auxTheta[i] = new float[image.width];
-//            }
             dataInit.producerGradient(image.height, image.width, tData.NUM_THREADS);
 
         }
@@ -65,17 +56,6 @@ public class GradientFilter extends Filter {
         this.Ix = gradientData.Ix;
         this.Iy = gradientData.Iy;
         this.theta = gradientData.theta;
-
-
-
-//        tData.barrier.await();
-//        this.theta = auxTheta;
-//        tData.barrier.await();
-
-
-
-        // prioritize gc to deallocate auxTheta
-//        System.gc();
 
         // 1. Se aplica kernelul Gx pe imagine si se obtine Ix
         for (int i = start; i < stop; ++i) {
@@ -140,8 +120,5 @@ public class GradientFilter extends Filter {
         }
 
         tData.barrier.await();
-
-        // deallocate Ix &Iy
-//        System.gc();
     }
 }
