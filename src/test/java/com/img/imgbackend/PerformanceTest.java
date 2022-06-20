@@ -6,7 +6,6 @@ import com.img.imgbackend.utils.Image;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openjdk.jmh.annotations.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -35,7 +34,6 @@ import static org.openjdk.jmh.annotations.Scope.Benchmark;
 )
 @Disabled
 public class PerformanceTest {
-    @Autowired
     private ImageFormatIO imageFormatIO = new ImageFormatIO();
 
     private static final int PARALLELISM = 4;
