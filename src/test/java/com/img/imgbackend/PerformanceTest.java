@@ -3,6 +3,7 @@ package com.img.imgbackend;
 import com.img.imgbackend.filter.tasks.TaskFactory;
 import com.img.imgbackend.repository.ImageFormatIO;
 import com.img.imgbackend.utils.Image;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openjdk.jmh.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ import static org.openjdk.jmh.annotations.Scope.Benchmark;
                 ImageFormatIO.class
         }
 )
-//@Disabled
+@Disabled
 public class PerformanceTest {
     @Autowired
     private ImageFormatIO imageFormatIO = new ImageFormatIO();
