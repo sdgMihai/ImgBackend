@@ -34,6 +34,15 @@ public class Image {
 
     }
 
+    public Image(final Image img) {
+        this.width = img.width;
+        this.height = img.height;
+        this.matrix = new Pixel[this.height][];
+        for(int i = 0; i < matrix.length; i++) {
+            this.matrix[i] = img.matrix[i].clone();
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -21,7 +21,6 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.openjdk.jmh.annotations.Scope.Benchmark;
 
@@ -34,7 +33,7 @@ import static org.openjdk.jmh.annotations.Scope.Benchmark;
 )
 @Disabled
 public class PerformanceTest {
-    private ImageFormatIO imageFormatIO = new ImageFormatIO();
+    private final ImageFormatIO imageFormatIO = new ImageFormatIO();
 
     private static final int PARALLELISM = 4;
 
@@ -67,36 +66,25 @@ public class PerformanceTest {
     @Benchmark
     @BenchmarkMode(Mode.AverageTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
-    @Warmup(iterations = 2)
-    @Measurement(iterations = 4)
-    public void testCannyEdgeDetectionFilter() throws IOException {
-        File inputFile = new ClassPathResource("noise.png").getFile();
-        byte[] image = Files.readAllBytes(inputFile.toPath());
-        assert (image.length != 0);
-        BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(image));
-        final Image input = imageFormatIO.bufferedToModelImage(bufferedImage);
-        final Image output = new Image(input.width - 2, input.height - 2);
-
-        File outputResult = new ClassPathResource("respnoise.png").getFile();
-        byte[] resultBytes = Files.readAllBytes(outputResult.toPath());
-        final Image result = imageFormatIO.bufferedToModelImage(
-                ImageIO.read(new ByteArrayInputStream(
-                        resultBytes
-                ))
-        );
+    @Warmup(iterations = 1)
+    @Measurement(iterations = 1)
+    @Fork(value=1, jvmArgs = {"-Xms2g", "-Xmx3g"})
+    public void testCannyEdgeDetectionFilter() {
         String[] filterName = new String[]{"canny-edge-detection"};
 
         ForkJoinPool commonPool = ForkJoinPool.commonPool();
 
         List<RecursiveAction> filters = TaskFactory.getFilters(filterName, null, input, output, THRESHOLD);
+
         filters.forEach(commonPool::invoke);
     }
 
     @TearDown(Level.Invocation)
     public void checkResult() {
-        assertEquals(input.width, output.width);
-        assertEquals(input.height, output.height);
-        assertEquals(result, output);
+        System.gc();
+//        assertEquals(input.width, output.width);
+//        assertEquals(input.height, output.height);
+//        assertEquals(result, output);
     }
 
 }
